@@ -80,3 +80,6 @@ bookstore/
 1. Truy cập trang chủ: http://localhost:8000
 2. Truy cập admin: http://localhost:8000/admin
 3. Truy cập admin panel: http://localhost:8000/admin-panel
+
+## Admin account: admin/123456
+
