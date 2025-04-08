@@ -1,0 +1,429 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Người dùng{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<style>
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+    }
+    .role-badge {
+        min-width: 80px;
+        text-align: center;
+    }
+    .filter-card {
+        position: sticky;
+        top: 1rem;
+    }
+    .stats-card {
+        transition: transform 0.2s;
+    }
+    .stats-card:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2">Người dùng</h1>
+            <p class="text-muted mb-0">Quản lý người dùng hệ thống và quyền của họ</p>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                <i class="fas fa-user-plus me-2"></i>Mời Người dùng
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stats-icon bg-primary text-white rounded p-3">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title mb-0">Tổng số người dùng</h6>
+                            <h3 class="mb-0">{{ total_users|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stats-icon bg-success text-white rounded p-3">
+                                <i class="fas fa-user-check fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title mb-0">Người dùng hoạt động</h6>
+                            <h3 class="mb-0">{{ active_users|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stats-icon bg-warning text-white rounded p-3">
+                                <i class="fas fa-user-clock fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title mb-0">Mới trong tháng này</h6>
+                            <h3 class="mb-0">{{ new_users|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stats-icon bg-info text-white rounded p-3">
+                                <i class="fas fa-user-shield fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title mb-0">Quản trị viên</h6>
+                            <h3 class="mb-0">{{ admin_count|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Users Table -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="usersTable" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                    <th>Đăng nhập cuối</th>
+                                    <th>Ngày tham gia</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if user.userprofile.avatar %}
+                                                <img src="{{ user.userprofile.avatar.url }}" alt="" class="user-avatar me-3">
+                                            {% else %}
+                                                <div class="avatar-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div>{{ user.get_full_name|default:user.username }}</div>
+                                                <small class="text-muted">@{{ user.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% if user.is_superuser %}
+                                            <span class="badge role-badge bg-danger">Quản trị viên</span>
+                                        {% elif user.is_staff %}
+                                            <span class="badge role-badge bg-warning">Nhân viên</span>
+                                        {% else %}
+                                            <span class="badge role-badge bg-secondary">Khách hàng</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input toggle-status" 
+                                                   {% if user.is_active %}checked{% endif %}
+                                                   data-user-id="{{ user.id }}"
+                                                   {% if user.is_superuser %}disabled{% endif %}>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if user.last_login %}
+                                            <div>{{ user.last_login|date:"M d, Y" }}</div>
+                                            <small class="text-muted">{{ user.last_login|time:"H:i" }}</small>
+                                        {% else %}
+                                            <span class="text-muted">Chưa bao giờ</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>{{ user.date_joined|date:"M d, Y" }}</div>
+                                        <small class="text-muted">{{ user.date_joined|time:"H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'admin_panel:user_detail' user.id %}" 
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-bs-toggle="tooltip"
+                                               title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {# Changed button to link for direct navigation #}
+                                            <a href="{% url 'admin_panel:user_edit' user.id %}"
+                                               class="btn btn-sm btn-outline-secondary"
+                                               data-bs-toggle="tooltip"
+                                               title="Chỉnh sửa Người dùng">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if not user.is_superuser %}
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger delete-user"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Xóa Người dùng">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# <!-- Invite User Modal (Commented out as 'invite_user' URL is not defined) -->
+<div class="modal fade" id="inviteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mời Người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            {# <form action="{% url 'admin_panel:invite_user' %}" method="POST"> #}
+            <form action="#" method="POST"> {# Placeholder action #}
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <select name="role" class="form-select" required>
+                            <option value="customer">Khách hàng</option>
+                            <option value="staff">Nhân viên</option>
+                            <option value="admin">Quản trị viên</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="send_email" class="form-check-input" checked>
+                            <label class="form-check-label">Gửi email mời</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Gửi lời mời</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+#}
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa Người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa người dùng "<span id="deleteUsername"></span>"?</p>
+                <p class="text-danger mb-0">Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa Người dùng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#usersTable').DataTable({
+        order: [[5, 'desc']],  // Sort by joined date
+        pageLength: 25,
+        language: {
+            search: "Tìm kiếm người dùng:"
+        }
+    });
+
+    // Initialize tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
+    // Handle user status toggle
+    $('.toggle-status').change(function() {
+        const userId = $(this).data('user-id');
+        const isActive = $(this).prop('checked');
+        
+        $.ajax({
+            url: `/admin-panel/users/${userId}/toggle-status/`,
+            type: 'POST',
+            data: {
+                'is_active': isActive,
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Trạng thái người dùng được cập nhật thành công');
+                } else {
+                    toastr.error('Lỗi cập nhật trạng thái người dùng');
+                    // Revert toggle if failed
+                    $(this).prop('checked', !isActive);
+                }
+            },
+            error: function() {
+                toastr.error('Lỗi cập nhật trạng thái người dùng');
+                // Revert toggle if failed
+                $(this).prop('checked', !isActive);
+            }
+        });
+    });
+
+    // Handle delete user
+    $('.delete-user').click(function() {
+        const userId = $(this).data('user-id');
+        const username = $(this).data('username');
+        $('#deleteUsername').text(username);
+        $('#deleteForm').attr('action', `/admin-panel/users/${userId}/delete/`);
+        $('#deleteModal').modal('show');
+    });
+});
+</script>
+{% endblock %}
+
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+templates/admin/user_list.html
+
+# VSCode Open Tabs
+.env
+requirements.txt
+acc
+templates/admin/base_site.html
+templates/includes/header.html
+main/migrations/0007_add_timestamps_to_category.py
+templates/includes/footer.html
+main/templatetags/custom_filters.py
+main/migrations/0008_add_payment_fields.py
+templates/main/category_list.html
+templates/main/category_detail.html
+main/migrations/0009_add_payment_fields_to_order.py
+templates/admin/dashboard.html
+templates/admin/order_list.html
+templates/admin/product_list.html
+templates/admin/category_list.html
+templates/admin/user_list.html
+templates/admin/user_edit.html
+admin_panel/forms.py
+admin_panel/urls.py
+templates/admin/sidebar.html
+templates/admin/profile.html
+templates/admin/user_profile.html
+templates/admin/header.html
+main/models.py
+templates/main/cart.html
+templates/includes/cart_offcanvas.html
+templates/main/product_detail.html
+templates/main/product_list.html
+templates/main/checkout.html
+main/views.py
+main/urls.py
+templates/main/order_detail.html
+templates/admin/order_detail.html
+templates/admin/order.html
+templates/admin/product.html
+main/forms.py
+templates/main/profile_edit.html
+main/templatetags/__init__.py
+static/admin/css/login.css
+static/admin/css/custom_login.css
+static/user/images/README.txt
+templates/main/profile.html
+main/signals.py
+templates/base.html
+main/migrations/0005_create_user_profiles.py
+static/user/js/main.js
+templates/main/login.html
+templates/main/register.html
+templates/main/product_search.html
+templates/main/order_history.html
+templates/404.html
+templates/500.html
+templates/403.html
+templates/maintenance.html
+static/robots.txt
+templates/main/order_list.html
+main/apps.py
+templates/includes/cart_offcanvas.html
+main/migrations/0002_category_parent.py
+
+# Current Time
+3/29/2025, 2:52:25 AM (Asia/Saigon, UTC+7:00)
+
+# Current Mode
+ACT MODE
+</environment_details>

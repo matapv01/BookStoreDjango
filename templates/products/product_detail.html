@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <img src="{% static 'img/no-image.jpg' %}" class="card-img-top" alt="No image">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-lg-6">
+            <h1 class="h2 mb-3">{{ product.name }}</h1>
+            
+            <div class="mb-3">
+                <span class="badge bg-primary">{{ product.category.name }}</span>
+            </div>
+
+            <div class="mb-4">
+                {% if product.discount %}
+                <span class="text-decoration-line-through text-muted h4 me-2">
+                    {{ product.price|floatformat:0 }}đ
+                </span>
+                <span class="text-danger h3 fw-bold">
+                    {{ product.discounted_price|floatformat:0 }}đ
+                </span>
+                <span class="badge bg-danger ms-2">-{{ product.discount }}%</span>
+                {% else %}
+                <span class="h3 fw-bold">{{ product.price|floatformat:0 }}đ</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <h5 class="mb-2">Mô tả sản phẩm</h5>
+                <p class="text-muted">{{ product.description|linebreaks }}</p>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="mb-2">Thông tin sản phẩm</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-box me-2"></i>
+                        <strong>Tình trạng:</strong>
+                        {% if product.stock > 0 %}
+                        <span class="text-success">Còn hàng</span>
+                        {% else %}
+                        <span class="text-danger">Hết hàng</span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-calendar me-2"></i>
+                        <strong>Ngày thêm:</strong>
+                        {{ product.created_at|date:"d/m/Y" }}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-sync me-2"></i>
+                        <strong>Cập nhật:</strong>
+                        {{ product.updated_at|date:"d/m/Y" }}
+                    </li>
+                </ul>
+            </div>
+
+            {% if product.stock > 0 %}
+            <form action="{% url 'cart:add_to_cart' product.id %}" method="post" class="mb-4">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <label for="quantity" class="form-label">Số lượng:</label>
+                        <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" required>
+                    </div>
+                    <div class="col-auto d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Sản phẩm đang hết hàng. Vui lòng quay lại sau!
+            </div>
+            {% endif %}
+
+            <div class="d-flex align-items-center">
+                <div class="me-4">
+                    <h6 class="mb-0">Chia sẻ:</h6>
+                    <div class="social-links mt-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" class="text-primary me-2" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ product.name }}" class="text-info me-2" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ product.name }}" class="text-primary" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h6 class="mb-0">Yêu thích:</h6>
+                    <button class="btn btn-outline-danger btn-sm mt-2" id="favoriteBtn">
+                        <i class="far fa-heart"></i>
+                        <span id="favoriteCount">{{ product.favorites.count }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">Sản phẩm liên quan</h2>
+            <div class="row g-4">
+                {% for product in related_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">{{ product.category.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if product.discount %}
+                                    <span class="text-decoration-line-through text-muted me-2">
+                                        {{ product.price|floatformat:0 }}đ
+                                    </span>
+                                    <span class="text-danger fw-bold">
+                                        {{ product.discounted_price|floatformat:0 }}đ
+                                    </span>
+                                    {% else %}
+                                    <span class="fw-bold">{{ product.price|floatformat:0 }}đ</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-primary btn-sm">
+                                    Chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#favoriteBtn').click(function() {
+            $.post('{% url "products:toggle_favorite" product.id %}', function(response) {
+                if (response.status === 'success') {
+                    $('#favoriteCount').text(response.count);
+                    if (response.is_favorite) {
+                        $('#favoriteBtn i').removeClass('far').addClass('fas');
+                    } else {
+                        $('#favoriteBtn i').removeClass('fas').addClass('far');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,57 @@
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="cartOffcanvasLabel">Giỏ hàng</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% if request.session.cart %}
+            {% for product_id, quantity in request.session.cart.items %}
+                {% with product=products|get_item:product_id %}
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-4">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-8">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ product.name }}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">Số lượng: {{ quantity }}</small><br>
+                                    {% if product.discount %}
+                                    <span class="text-decoration-line-through text-muted">{{ product.price|floatformat:0 }}đ</span><br>
+                                    <span class="text-danger">{{ product.discounted_price|floatformat:0 }}đ</span>
+                                    {% else %}
+                                    <span>{{ product.price|floatformat:0 }}đ</span>
+                                    {% endif %}
+                                </p>
+                                <a href="{% url 'main:remove_from_cart' product.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+            <div class="d-grid gap-2">
+                <a href="{% url 'main:cart' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>Xem giỏ hàng
+                </a>
+                <a href="{% url 'main:checkout' %}" class="btn btn-primary">
+                    <i class="fas fa-credit-card me-2"></i>Thanh toán
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                <h5>Giỏ hàng trống</h5>
+                <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng</p>
+                <a href="{% url 'main:product_list' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag me-2"></i>Mua sắm ngay
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>

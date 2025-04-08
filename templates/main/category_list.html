@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Danh mục sản phẩm - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-section {
+        background: #f8f9fa;
+        padding: 3rem 0;
+        min-height: 80vh;
+    }
+
+    .category-header {
+        background: linear-gradient(135deg, #007bff, #00bfff);
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-header::before {
+        content: '';
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(45deg);
+        top: -50%;
+        left: -50%;
+        animation: shine 4s infinite linear;
+    }
+
+    @keyframes shine {
+        from { transform: rotate(45deg) translateY(-100%); }
+        to { transform: rotate(45deg) translateY(100%); }
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-image {
+        position: relative;
+        padding-top: 60%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+
+    .category-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+
+    .category-card:hover .category-image img {
+        transform: scale(1.1);
+    }
+
+    .category-content {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .category-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .category-stats {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-stats i {
+        color: #007bff;
+        margin-right: 0.5rem;
+    }
+
+    .category-action {
+        margin-top: auto;
+        text-align: center;
+    }
+
+    .btn-explore {
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        background: linear-gradient(135deg, #007bff, #00bfff);
+        border: none;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-explore:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        color: white;
+    }
+
+    .empty-categories {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-categories i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0, 123, 255, 0.9);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="category-section">
+    <!-- Category Header -->
+    <div class="category-header" data-aos="fade-down">
+        <div class="container">
+            <h1 class="display-4 mb-3">Danh mục sản phẩm</h1>
+            <p class="lead mb-0">Khám phá các danh mục sách đa dạng của chúng tôi</p>
+        </div>
+    </div>
+
+    <div class="container">
+        {% if categories %}
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|multiply:50 }}">
+                        <div class="category-card">
+                            <div class="category-image">
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/default-category.jpg' %}" alt="{{ category.name }}">
+                                {% endif %}
+                                <div class="category-badge">
+                                    <i class="fas fa-book me-1"></i>{{ category.product_set.count }} sản phẩm
+                                </div>
+                            </div>
+                            <div class="category-content">
+                                <h3 class="category-title">{{ category.name }}</h3>
+                                {% if category.description %}
+                                    <p class="text-muted">{{ category.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                <div class="category-stats">
+                                    {% if category.children.exists %}
+                                        <div><i class="fas fa-folder"></i>{{ category.children.count }} danh mục con</div>
+                                    {% endif %}
+                                </div>
+                                <div class="category-action">
+                                    <a href="{% url 'main:category_detail' category.slug %}" class="btn btn-explore">
+                                        <i class="fas fa-arrow-right me-2"></i>Khám phá
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-categories" data-aos="fade-up">
+                <i class="fas fa-folder-open"></i>
+                <h3>Chưa có danh mục nào</h3>
+                <p class="text-muted">Hiện tại chưa có danh mục sản phẩm nào.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hover effects
+    const cards = document.querySelectorAll('.category-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Thông tin cá nhân{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'admin_panel:dashboard' %}"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+            <li class="active">Thông tin cá nhân</li>
+        </ol>
+    </div><!--/.row-->
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Thông tin cá nhân</h1>
+        </div>
+    </div><!--/.row-->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Tên đăng nhập</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" class="form-control" name="full_name" value="{{ user.get_full_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ user_profile.phone_number }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ</label>
+                            <textarea class="form-control" name="address" rows="3" required>{{ user_profile.address }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Ảnh đại diện</label>
+                            <input type="file" class="form-control-file" name="avatar" accept="image/*">
+                            {% if user_profile.avatar %}
+                            <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="img-thumbnail mt-2" style="max-width: 200px;">
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div><!--/.row-->
+</div><!-- /.container-fluid -->
+{% endblock %}

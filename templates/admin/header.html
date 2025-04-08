@@ -1,0 +1,132 @@
+{% load static %}
+<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 shadow-sm">
+    <!-- Sidebar toggle button -->
+    <button class="navbar-toggler d-md-none collapsed me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Brand logo -->
+    <a class="navbar-brand me-0 me-md-2 py-0" href="{% url 'admin_panel:dashboard' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" height="32" onerror="this.src='https://via.placeholder.com/32'">
+        <span class="ms-2 d-none d-sm-inline fw-bold">Quản trị viên</span>
+    </a>
+
+    <!-- Spacer to push everything to right -->
+    <div class="flex-fill"></div>
+
+    <!-- Right aligned items -->
+    <div class="navbar-nav flex-row align-items-center">
+        <!-- Search Form -->
+        <form class="d-none d-lg-flex me-3">
+            <div class="input-group">
+                <input class="form-control form-control-sm border-end-0" type="search" placeholder="Tìm kiếm..." aria-label="Search">
+                <span class="input-group-text bg-white border-start-0"><i class="fas fa-search text-muted"></i></span>
+            </div>
+        </form>
+
+        <!-- Notifications Dropdown -->
+        <div class="nav-item dropdown me-3">
+            <a class="nav-link position-relative p-1" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="rounded-circle bg-light p-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bell"></i>
+                </div>
+                {% if unread_notifications_count %}
+                    <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger">
+                        {{ unread_notifications_count }}
+                        <span class="visually-hidden">thông báo mới</span>
+                    </span>
+                {% endif %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 280px;" aria-labelledby="notificationsDropdown">
+                <h6 class="dropdown-header bg-light py-2">Thông báo</h6>
+                <div class="notification-scroll" style="max-height: 300px; overflow-y: auto;">
+                    {% if notifications %}
+                        {% for notification in notifications|slice:":5" %}
+                            <a class="dropdown-item py-2 px-3 border-bottom" href="#">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-light p-2">
+                                            <i class="fas fa-info-circle text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <p class="mb-0 text-wrap">{{ notification.message }}</p>
+                                        <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dropdown-item text-center text-muted py-3">Không có thông báo</div>
+                    {% endif %}
+                </div>
+                {% if notifications %}
+                    <div class="dropdown-divider m-0"></div>
+                    <a class="dropdown-item text-center py-2" href="#">Xem tất cả thông báo</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- User Dropdown -->
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center p-1" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="me-2 d-none d-sm-block text-end">
+                    <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="text-muted small">Quản trị viên</div>
+                </div>
+                {% if user.userprofile.avatar %}
+                    <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.get_full_name }}" class="rounded-circle object-fit-cover" width="36" height="36">
+                {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        {{ user.get_full_name|default:user.username|first|upper }}
+                    </div>
+                {% endif %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                <div class="dropdown-header py-2">
+                    <strong>{{ user.get_full_name|default:user.username }}</strong>
+                </div>
+                <a class="dropdown-item py-2" href="{% url 'admin_panel:profile' %}">
+                    <i class="fas fa-user me-2 text-muted"></i>Hồ sơ cá nhân
+                </a>
+                <a class="dropdown-item py-2" href="{% url 'admin_panel:settings' %}">
+                    <i class="fas fa-cog me-2 text-muted"></i>Cài đặt hệ thống
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger py-2" href="{% url 'admin_panel:logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+{% if messages %}
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 60px;">
+    {% for message in messages %}
+        <div class="toast show shadow-sm" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger{% elif message.tags == 'warning' %}bg-warning{% else %}bg-info{% endif %} text-white">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                <strong class="me-auto">{{ message.tags|title|default:"Thông báo" }}</strong>
+                <small>bây giờ</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<script>
+    // Auto-hide toasts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast.show');
+        toasts.forEach(toast => {
+            setTimeout(function() {
+                const bsToast = bootstrap.Toast.getInstance(toast);
+                if (bsToast) bsToast.hide();
+            }, 5000);
+        });
+    });
+</script>
+{% endif %}

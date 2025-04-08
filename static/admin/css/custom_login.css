@@ -1,0 +1,94 @@
+#login-form {
+    width: 28em;
+    min-width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#login-form h2 {
+    margin: 0 0 20px 0;
+    padding: 0;
+    text-align: center;
+    color: #417690;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.login #container {
+    background: #f8f8f8;
+    min-height: 100vh;
+}
+
+.login .form-row {
+    padding: 10px 0;
+}
+
+.login .form-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 14px;
+}
+
+.login .form-row input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.login .form-row input:focus {
+    border-color: #417690;
+    outline: none;
+    box-shadow: 0 0 5px rgba(65,118,144,0.2);
+}
+
+.login .submit-row {
+    padding: 20px 0 0 0;
+    text-align: center;
+    border: none;
+    background: none;
+}
+
+.login .submit-row input {
+    width: auto;
+    min-width: 120px;
+    background: #417690;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+.login .submit-row input:hover {
+    background: #205067;
+}
+
+.login .password-reset-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login .password-reset-link a {
+    color: #417690;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.login .password-reset-link a:hover {
+    text-decoration: underline;
+}
+
+.errornote {
+    margin: 0 0 20px 0;
+    padding: 10px;
+    border-radius: 4px;
+}

@@ -1,0 +1,149 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}BookStore Admin - Chi tiết người dùng{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:users' %}">Users</a></li> {# Changed 'user_list' to 'users' #}
+        <li class="breadcrumb-item active" aria-current="page">{{ user.username }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Thông tin cá nhân -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin cá nhân</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name }}" class="img-thumbnail rounded-circle" style="max-width: 150px;">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-7x text-secondary"></i>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Họ tên</label>
+                    <p>{{ user.get_full_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <p>{{ user.email }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số điện thoại</label>
+                    <p>{{ user.profile.phone }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Địa chỉ</label>
+                    <p>{{ user.profile.address }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ngày tham gia</label>
+                    <p>{{ user.date_joined|date:"d/m/Y" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <p>
+                        {% if user.is_active %}
+                        <span class="badge bg-success">Hoạt động</span>
+                        {% else %}
+                        <span class="badge bg-danger">Đã khóa</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thao tác</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {# Link to the new user_edit URL #}
+                    <a href="{% url 'admin_panel:user_edit' user.pk %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử đơn hàng -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lịch sử đơn hàng</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in user_orders %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'admin_panel:order_detail' order.pk %}">#{{ order.id }}</a>
+                                </td>
+                                <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                                <td>
+                                    <span class="badge bg-{{ order.status_color }}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">Chưa có đơn hàng nào.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa người dùng "{{ user.get_full_name }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                {# Temporarily disable delete form action as URL 'user_delete' is not defined #}
+                <form action="#" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger disabled" aria-disabled="true">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

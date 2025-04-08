@@ -1,0 +1,160 @@
+/* Dashboard Statistics Cards */
+.dashboard-stat {
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-stat::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 7px;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-101%);
+    transition: transform 0.5s ease;
+}
+
+.dashboard-stat:hover::before {
+    transform: translateX(0);
+}
+
+/* Colored accents */
+.dashboard-stat .text-primary {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-stat:hover .text-primary,
+.dashboard-stat:hover .text-success,
+.dashboard-stat:hover .text-info,
+.dashboard-stat:hover .text-warning {
+    transform: scale(1.2);
+}
+
+.dashboard-stat:nth-child(1)::before {
+    background: linear-gradient(to right, #4e73df, #224abe);
+}
+
+.dashboard-stat:nth-child(2)::before {
+    background: linear-gradient(to right, #1cc88a, #169a6a);
+}
+
+.dashboard-stat:nth-child(3)::before {
+    background: linear-gradient(to right, #36b9cc, #258391);
+}
+
+.dashboard-stat:nth-child(4)::before {
+    background: linear-gradient(to right, #f6c23e, #daa520);
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Animation for dashboard stats */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-stats-row .col-12 {
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+.dashboard-stats-row .col-12:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.dashboard-stats-row .col-12:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dashboard-stats-row .col-12:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.dashboard-stats-row .col-12:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+/* Recent Orders Table */
+.table-hover tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+}
+
+.table-hover tbody tr:hover {
+    transform: scale(1.01);
+    z-index: 1;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    position: relative;
+}
+
+/* Loading indicator */
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, #4e73df, #224abe);
+    z-index: 9999;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { width: 0; left: 0; }
+    50% { width: 100%; left: 0; }
+    100% { width: 0; left: 100%; }
+}
+
+/* Badge animations */
+.badge {
+    transition: transform 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats icon style */
+.dashboard-stat i {
+    opacity: 0.8;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dashboard-stat:hover i {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Counter animation */
+@keyframes counter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-stat h3 {
+    animation: counter 0.8s ease forwards;
+}

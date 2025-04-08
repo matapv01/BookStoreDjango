@@ -1,0 +1,212 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Danh mục{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<style>
+    .category-tree {
+        list-style: none;
+        padding-left: 0;
+    }
+    .category-tree ul {
+        list-style: none;
+        padding-left: 2rem;
+    }
+    .category-tree .category-item {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background: #fff;
+    }
+    .category-tree .category-item:hover {
+        background: #f8f9fa;
+    }
+    .category-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .drag-handle {
+        cursor: move;
+        color: #6c757d;
+    }
+    .category-stats {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .category-actions {
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+    .category-item:hover .category-actions {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Danh mục</h1>
+            <p class="text-muted mb-0">Quản lý danh mục sản phẩm</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_panel:add_category' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm Danh mục
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-8">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="category-tree" id="categoryTree">
+                        {% for category in categories %}
+                            {% if not category.parent %}
+                                {% include 'admin/category_tree_item.html' with category=category %}
+                            {% endif %}
+                        {% empty %}
+                            <li class="text-center py-4 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <p>Không tìm thấy danh mục nào</p>
+                                <a href="{% url 'admin_panel:add_category' %}" class="btn btn-sm btn-primary">
+                                    Thêm danh mục đầu tiên
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="row">
+                <!-- Statistics Card -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Thống kê danh mục</h5>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted mb-1">Tổng danh mục</h6>
+                                        <h3 class="mb-0">{{ categories|length }}</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted mb-1">Cấp cao nhất</h6>
+                                        <h3 class="mb-0">{{ top_level_count }}</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted mb-1">Tổng sản phẩm</h6>
+                                        <h3 class="mb-0">{{ total_products|intcomma }}</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted mb-1">Danh mục trống</h6>
+                                        <h3 class="mb-0">{{ empty_categories }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Card -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Hướng dẫn nhanh</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Mẹo quản lý danh mục:</h6>
+                            <ul class="mb-0">
+                                <li>Kéo và thả để sắp xếp lại danh mục</li>
+                                <li>Nhấp vào mũi tên để mở rộng/thu gọn danh mục con</li>
+                                <li>Sử dụng tên rõ ràng, dễ hiểu</li>
+                                <li>Giữ hệ thống phân cấp đơn giản (tối đa 3 cấp)</li>
+                                <li>Thêm hình ảnh liên quan để hiển thị tốt hơn</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa "<span id="categoryName"></span>"?</p>
+                <div id="warningText" class="alert alert-warning d-none">
+                    Danh mục này chứa danh mục con và/hoặc sản phẩm. Tất cả các mục liên quan sẽ bị xóa.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize Sortable for drag-and-drop
+    const categoryTree = document.getElementById('categoryTree');
+    new Sortable(categoryTree, {
+        handle: '.drag-handle',
+        animation: 150,
+        onEnd: function(evt) {
+            const categoryId = evt.item.dataset.id;
+            const newPosition = evt.newIndex;
+            // TODO: Add AJAX call to update category position
+        }
+    });
+
+    // Handle delete confirmation
+    $('.delete-category').click(function(e) {
+        e.preventDefault();
+        const categoryId = $(this).data('id');
+        const categoryName = $(this).data('name');
+        const hasChildren = $(this).data('has-children') === 'true';
+        const hasProducts = $(this).data('has-products') === 'true';
+
+        $('#categoryName').text(categoryName);
+        $('#warningText').toggleClass('d-none', !hasChildren && !hasProducts);
+        $('#deleteForm').attr('action', $(this).attr('href'));
+        $('#deleteModal').modal('show');
+    });
+
+    // Handle category collapse/expand
+    $('.category-toggle').click(function() {
+        $(this).find('i').toggleClass('fa-caret-right fa-caret-down');
+        $(this).closest('.category-item').next('ul').slideToggle();
+    });
+});
+</script>
+{% endblock %}

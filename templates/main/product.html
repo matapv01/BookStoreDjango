@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Chi tiết sản phẩm</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'user/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'user/css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Paytone+One&display=swap" rel="stylesheet">
+    <!-- JS -->
+    <script src="{% static 'user/js/jquery-3.3.1.js' %}"></script>
+    <script src="{% static 'user/js/bootstrap.min.js' %}"></script>
+</head>
+<body>
+    <div class="app">
+        <header id="header">
+            <!-- Header Top -->
+            <div class="header__top">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-5 col-md-0 col-sm-0 header__top-left">
+                            <span style="font-size: 1.5rem; color: #fff;">BookStore - Mở tri thức, mở tương lai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Bottom -->
+            <div class="header__bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!-- Logo -->
+                        <div class="col-lg-3 col-md-4 col-sm-12 header__logo">
+                            <h1 class="header__heading">
+                                <a href="home.html" class="header__logo-link">
+                                    <span class="header__logo-text">BookStore</span>
+                                </a>
+                            </h1>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-lg-6 col-md-7 col-sm-0 header__top-right">
+                            <select class="header__search-select">
+                                <option value="0">All</option>
+                                <option value="1">Sách bán chạy</option>
+                                <option value="2">Sách mới</option>
+                                <option value="3">Manga-Comic</option>
+                            </select>
+                            <input type="text" class="header__search-input" placeholder="Tìm kiếm tại đây...">
+                            <button class="header__search-btn">
+                                <i class="fas fa-search header__search-icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Navigation Menu -->
+                        <div class="col-lg-3 col-md-0 col-sm-0 header__nav-menu-wrap d-flex align-items-center justify-content-between" style="background: none;">
+                            <!-- Danh mục sản phẩm -->
+                            <a href="category.html" class="menu__link" style="background: none; color: #fff;">
+                                <img src="images/icon/baby-boy.png" alt="Danh mục" class="menu__item-icon" style="filter: brightness(0) invert(1);">
+                                Danh mục sản phẩm
+                            </a>
+
+                            <!-- Giỏ hàng -->
+                            <a href="cart.html" class="header__cart-icon" style="margin-right: 15px;">
+                                <i class="fas fa-shopping-cart" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+
+                            <!-- Profile -->
+                            <a href="profile.html" class="header__user-icon">
+                                <i class="fas fa-user" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </header>
+<!-- Scroll to Top Button -->
+<button onclick="topFunction()" id="myBtn-scroll" title="Go to top">
+    <i class="fas fa-chevron-up"></i>
+</button>
+
+<!-- Product Section -->
+<section class="product">
+    <div class="container">
+        <div class="row bg-white pt-4 pb-4 border-bt pc">
+            <article class="product__main col-lg-9 col-md-12 col-sm-12">
+                <div class="row">
+                    <!-- Product Images -->
+                    <div class="product__main-img col-lg-4 col-md-4 col-sm-12">
+                        <div class="product__main-img-primary">
+                            <img src="images/product/hoc-tap-qua-du-an-2-01-1.jpg" alt="Học tập qua dự án">
+                        </div>
+                        <div class="product__main-img-list">
+                            <img src="images/product/hoc-tap-qua-du-an-2-01-1.jpg" alt="Học tập qua dự án - Ảnh 1">
+                            <img src="images/product/hoc-tap-qua-du-an-2-01-1 1.jpg" alt="Học tập qua dự án - Ảnh 2">
+                            <img src="images/product/hoc-tap-qua-du-an-2-01-1 2.jpg" alt="Học tập qua dự án - Ảnh 3">
+                            <img src="images/product/23f849a0617301e63159067164aecfd2.png" alt="Học tập qua dự án - Ảnh 4">
+                        </div>
+                    </div>
+
+                    <!-- Product Information -->
+                    <div class="product__main-info col-lg-8 col-md-8 col-sm-12">
+                        <a href="#" class="product__main-info-title">
+                            <h2 class="product__main-info-heading">Học tập qua dự án</h2>
+                        </a>
+                        <div class="product__main-info-price">
+                            <span class="product__main-info-price-current">140.000đ</span>
+                        </div>
+                        <div class="product__main-info-description">
+                            Trong gần một thế kỷ qua, nhiều nhà giáo dục đã tiến hành nghiên cứu và ghi nhận về những lợi ích của việc học tập qua trải nghiệm, thực hành, và lấy người học làm trung tâm. Nhà bác học Albert Einstein...
+                        </div>
+                        <div class="product__main-info-cart">
+                            <div class="product__main-info-cart-btn-wrap">
+                                <button class="product__main-info-cart-btn">Thêm vào giỏ hàng</button>
+                            </div>
+                        </div>
+                        <div class="product__main-info-contact">
+                            <a href="#" class="product__main-info-contact-fb">
+                                <i class="fab fa-facebook-f"></i> Chat Facebook
+                            </a>
+                            <div class="product__main-info-contact-phone-wrap">
+                                <div class="product__main-info-contact-phone-icon">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="product__main-info-contact-phone">
+                                    <div class="product__main-info-contact-phone-title">Gọi điện tư vấn</div>
+                                    <div class="product__main-info-contact-phone-number">(0123.456.789)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <!-- Footer Top -->
+    <section class="footer__top">
+        <div class="container">
+            <div class="row d-flex justify-content-between">
+                <!-- Giới thiệu -->
+                <article class="footer__top-intro col-lg-5 col-md-4 col-sm-6">
+                    <h4 class="footer__top-intro-heading">Về chúng tôi</h4>
+                    <div class="footer__top-intro-content">
+                        BookStore là cửa hàng sách uy tín, luôn cung cấp sách chính hãng với nội dung hấp dẫn.<br>
+                        Chúng tôi sẽ liên tục cập nhật những cuốn sách mới nhất, hay nhất trong thời gian sớm nhất!<br><br>
+                    </div>
+                </article>
+
+                <!-- Liên hệ (Căn phải toàn cụm, số điện thoại và icon căn trái thẳng hàng) -->
+                <article class="footer__top-contact-wrap col-lg-4 col-md-4 col-sm-6 text-end">
+                    <h4 class="footer__top-contact-heading">Hotline liên hệ</h4>
+                    <div class="footer__top-contact d-flex align-items-start">
+                        <div class="footer__top-contact-icon me-2">
+                            <img src="images/contact/phone_top.png" class="footer__top-contact-img" alt="Hotline" style="vertical-align: top;">
+                        </div>
+                        <div class="footer__top-contact-phone-wrap text-start">
+                            <div class="footer__top-contact-phone">0123.456.789</div>
+                            <div class="footer__top-contact-des">(Giải đáp thắc mắc 24/24)</div>
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Bottom -->
+    <section class="footer__bottom">
+        <div class="container">
+            <div class="row">
+                <span class="footer__bottom-content">@Bản quyền thuộc về BookStore | Thiết kế bởi MinhPV</span>
+            </div>
+        </div>
+    </section>
+</footer>
+<!-- End Footer -->
+
+<!-- Scripts -->
+<script src="{% static 'user/js/jq.js' %}"></script>
+<script src="{% static 'user/js/index.js' %}"></script>
+</body>
+</html>

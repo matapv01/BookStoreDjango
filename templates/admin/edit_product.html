@@ -1,0 +1,114 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}BookStore Admin - Sửa sản phẩm{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:product_list' %}">Quản lý sản phẩm</a></li>
+        <li class="breadcrumb-item active">Sửa sản phẩm</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Sửa sản phẩm</h6>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <h5>Vui lòng sửa các lỗi sau:</h5>
+                {{ form.errors }}
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Tên sản phẩm</label>
+                        {{ form.name }}
+                        {% if form.name.help_text %}
+                        <div class="form-text">{{ form.name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">Danh mục</label>
+                        {{ form.category }}
+                        {% if form.category.help_text %}
+                        <div class="form-text">{{ form.category.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.price.id_for_label }}" class="form-label">Giá</label>
+                        {{ form.price }}
+                        {% if form.price.help_text %}
+                        <div class="form-text">{{ form.price.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.stock.id_for_label }}" class="form-label">Tồn kho</label>
+                        {{ form.stock }}
+                        {% if form.stock.help_text %}
+                        <div class="form-text">{{ form.stock.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.image.id_for_label }}" class="form-label">Hình ảnh</label>
+                        {% if product.image %}
+                        <div class="mb-2">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 200px;">
+                        </div>
+                        {% endif %}
+                        {{ form.image }}
+                        {% if form.image.help_text %}
+                        <div class="form-text">{{ form.image.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Mô tả</label>
+                        {{ form.description }}
+                        {% if form.description.help_text %}
+                        <div class="form-text">{{ form.description.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.featured }}
+                            <label class="form-check-label" for="{{ form.featured.id_for_label }}">
+                                Sản phẩm nổi bật
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.discount.id_for_label }}" class="form-label">Giảm giá (%)</label>
+                        {{ form.discount }}
+                        {% if form.discount.help_text %}
+                        <div class="form-text">{{ form.discount.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <a href="{% url 'admin_panel:product_list' %}" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

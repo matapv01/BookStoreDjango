@@ -1,0 +1,141 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}BookStore Admin - Cài đặt hệ thống{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Cài đặt hệ thống</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Cài đặt hệ thống</h6>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <h5>Vui lòng sửa các lỗi sau:</h5>
+                {{ form.errors }}
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.site_name.id_for_label }}" class="form-label">Tên website</label>
+                        {{ form.site_name }}
+                        {% if form.site_name.help_text %}
+                        <div class="form-text">{{ form.site_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.site_description.id_for_label }}" class="form-label">Mô tả website</label>
+                        {{ form.site_description }}
+                        {% if form.site_description.help_text %}
+                        <div class="form-text">{{ form.site_description.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.contact_email.id_for_label }}" class="form-label">Email liên hệ</label>
+                        {{ form.contact_email }}
+                        {% if form.contact_email.help_text %}
+                        <div class="form-text">{{ form.contact_email.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.contact_phone.id_for_label }}" class="form-label">Số điện thoại liên hệ</label>
+                        {{ form.contact_phone }}
+                        {% if form.contact_phone.help_text %}
+                        <div class="form-text">{{ form.contact_phone.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.address.id_for_label }}" class="form-label">Địa chỉ</label>
+                        {{ form.address }}
+                        {% if form.address.help_text %}
+                        <div class="form-text">{{ form.address.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.facebook_url.id_for_label }}" class="form-label">Facebook URL</label>
+                        {{ form.facebook_url }}
+                        {% if form.facebook_url.help_text %}
+                        <div class="form-text">{{ form.facebook_url.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.twitter_url.id_for_label }}" class="form-label">Twitter URL</label>
+                        {{ form.twitter_url }}
+                        {% if form.twitter_url.help_text %}
+                        <div class="form-text">{{ form.twitter_url.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.instagram_url.id_for_label }}" class="form-label">Instagram URL</label>
+                        {{ form.instagram_url }}
+                        {% if form.instagram_url.help_text %}
+                        <div class="form-text">{{ form.instagram_url.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.logo.id_for_label }}" class="form-label">Logo</label>
+                        {% if settings.logo %}
+                        <div class="mb-2">
+                            <img src="{{ settings.logo.url }}" alt="Logo" class="img-thumbnail" style="max-width: 200px;">
+                        </div>
+                        {% endif %}
+                        {{ form.logo }}
+                        {% if form.logo.help_text %}
+                        <div class="form-text">{{ form.logo.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.favicon.id_for_label }}" class="form-label">Favicon</label>
+                        {% if settings.favicon %}
+                        <div class="mb-2">
+                            <img src="{{ settings.favicon.url }}" alt="Favicon" class="img-thumbnail" style="max-width: 32px;">
+                        </div>
+                        {% endif %}
+                        {{ form.favicon }}
+                        {% if form.favicon.help_text %}
+                        <div class="form-text">{{ form.favicon.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Website hoạt động
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

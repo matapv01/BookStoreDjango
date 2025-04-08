@@ -1,0 +1,195 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .preview-image {
+        max-width: 200px;
+        max-height: 200px;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        line-height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">{{ title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_panel:categories' %}">Categories</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="categoryForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Category Name*</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                                {% endif %}
+                                <div class="help-text">Choose a clear, concise name for the category.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.parent.id_for_label }}" class="form-label">Parent Category</label>
+                                {{ form.parent }}
+                                {% if form.parent.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.parent.errors }}</div>
+                                {% endif %}
+                                <div class="help-text">Optional parent category for hierarchy.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="help-text">Provide a brief description of the category.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Category Image</label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="invalid-feedback d-block">{{ form.image.errors }}</div>
+                            {% endif %}
+                            {% if form.instance.image %}
+                                <div class="mt-2">
+                                    <img src="{{ form.instance.image.url }}" alt="Current image" class="preview-image">
+                                </div>
+                            {% endif %}
+                            <div class="help-text">Recommended size: 800x600 pixels, max 2MB.</div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save Category
+                            </button>
+                            <a href="{% url 'admin_panel:categories' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Help & Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Tips for Category Management:</h6>
+                    <ul class="mb-0">
+                        <li>Use clear and descriptive names</li>
+                        <li>Keep hierarchy simple and logical</li>
+                        <li>Optimize images before uploading</li>
+                        <li>Add relevant descriptions</li>
+                        <li>Check for duplicate categories</li>
+                    </ul>
+                    
+                    {% if form.instance.pk %}
+                        <hr>
+                        <h6>Category Statistics:</h6>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-8">Products in category:</dt>
+                            <dd class="col-sm-4">{{ form.instance.product_set.count }}</dd>
+                            
+                            <dt class="col-sm-8">Subcategories:</dt>
+                            <dd class="col-sm-4">{{ form.instance.children.count }}</dd>
+                            
+                            <dt class="col-sm-8">Created:</dt>
+                            <dd class="col-sm-4">{{ form.instance.created_at|date:"M d, Y" }}</dd>
+                        </dl>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize Select2
+    $('#{{ form.parent.auto_id }}').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: 'Select a parent category',
+        allowClear: true
+    });
+
+    // Image preview
+    $('#{{ form.image.auto_id }}').change(function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if ($('.preview-image').length) {
+                    $('.preview-image').attr('src', e.target.result);
+                } else {
+                    $('<img>', {
+                        src: e.target.result,
+                        class: 'preview-image mt-2'
+                    }).insertAfter($('#{{ form.image.auto_id }}'));
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form validation
+    $('#categoryForm').submit(function(e) {
+        const name = $('#{{ form.name.auto_id }}').val().trim();
+        if (!name) {
+            alert('Category name is required');
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

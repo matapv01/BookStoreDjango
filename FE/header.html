@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Paytone+One&display=swap" rel="stylesheet">
+    <!-- JS -->
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header id="header">
+            <!-- Header Top -->
+            <div class="header__top">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-5 col-md-0 col-sm-0 header__top-left">
+                            <span style="font-size: 1.5rem; color: #fff;">BookStore - Mở tri thức, mở tương lai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Bottom -->
+            <div class="header__bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!-- Logo -->
+                        <div class="col-lg-3 col-md-4 col-sm-12 header__logo">
+                            <h1 class="header__heading">
+                                <a href="home.html" class="header__logo-link">
+                                    <span class="header__logo-text">BookStore</span>
+                                </a>
+                            </h1>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-lg-6 col-md-7 col-sm-0 header__top-right">
+                            <select class="header__search-select">
+                                <option value="0">All</option>
+                                <option value="1">Sách bán chạy</option>
+                                <option value="2">Sách mới</option>
+                                <option value="3">Manga-Comic</option>
+                            </select>
+                            <input type="text" class="header__search-input" placeholder="Tìm kiếm tại đây...">
+                            <button class="header__search-btn">
+                                <i class="fas fa-search header__search-icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Navigation Menu -->
+                        <div class="col-lg-3 col-md-0 col-sm-0 header__nav-menu-wrap d-flex align-items-center justify-content-between" style="background: none;">
+                            <!-- Danh mục sản phẩm -->
+                            <a href="category.html" class="menu__link" style="background: none; color: #fff;">
+                                <img src="images/icon/baby-boy.png" alt="Danh mục" class="menu__item-icon" style="filter: brightness(0) invert(1);">
+                                Danh mục sản phẩm
+                            </a>
+
+                            <!-- Giỏ hàng -->
+                            <a href="cart.html" class="header__cart-icon" style="margin-right: 15px;">
+                                <i class="fas fa-shopping-cart" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+
+                            <!-- Profile -->
+                            <a href="profile.html" class="header__user-icon">
+                                <i class="fas fa-user" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </header>

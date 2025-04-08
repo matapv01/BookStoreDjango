@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book-Store admin</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/datepicker3.css" rel="stylesheet">
+<link href="css/bootstrap-table.css" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+
+<!--Icons-->
+<script src="js/lumino.glyphs.js"></script>
+
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#sidebar-collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="category.html"><span>Edu</span>Book</a>
+						<ul class="user-menu">
+							<li class="dropdown pull-right">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Admin <span class="caret"></span></a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="profile.html"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Hồ sơ</a></li>
+									<li><a href="#"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> Đăng xuất</a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+									
+				</div><!-- /.container-fluid -->
+		</nav>
+        <div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+			<ul class="nav menu">
+                <li><a href="category.html"><svg class="glyph stroked bag"><use xlink:href="#stroked-bag"></use></svg>Quản lý danh mục</a></li>
+				<li><a href="product.html"><svg class="glyph stroked bag"><use xlink:href="#stroked-bag"></use></svg>Quản lý sản phẩm</a></li>
+                <li class="active"><a href="order_management.html"><svg class="glyph stroked open folder"><use xlink:href="#stroked-open-folder"/></svg>Quản lý đơn hàng</a></li>
+			</ul>
+	
+		</div><!--/.sidebar-->
+
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+            <li class="active">Quản lý đơn hàng</li>
+        </ol>
+    </div><!--/.row-->
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Quản lý đơn hàng</h1>
+        </div>
+    </div><!--/.row-->
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table table-bordered" style="table-layout: fixed; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">ID</th>
+                                <th style="width: 15%;">Tên người dùng</th>
+                                <th style="width: 30%;">Sản phẩm</th>
+                                <th style="width: 10%;">Tổng tiền</th>
+                                <th style="width: 15%;">Trạng thái</th>
+                                <th style="width: 10%;">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Nguyễn Văn A</td>
+                                <td>
+                                    <ul class="product-list">
+                                        <li><span class="product-name">5 Centimet Trên Giây</span> <span class="product-quantity">x2</span></li>
+                                        <li><span class="product-name">Tôi Thích Bản Thân Nỗ Lực Hơn</span> <span class="product-quantity">x1</span></li>
+                                        <li><span class="product-name">Con Chim Xanh Biếc Bay Về</span> <span class="product-quantity">x3</span></li>
+                                    </ul>
+                                </td>
+                                <td>350.000đ</td>
+                                <td>
+                                    <select class="form-control status-dropdown">
+                                        <option value="pending">Đang chờ duyệt</option>
+                                        <option value="approved">Đã duyệt</option>
+                                        <option value="shipped">Đã giao</option>
+                                    </select>
+                                </td>
+                                <td><button class="btn btn-info">Chi tiết</button></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Trần Thị B</td>
+                                <td>
+                                    <ul class="product-list">
+                                        <li><span class="product-name">Đắc Nhân Tâm</span> <span class="product-quantity">x1</span></li>
+                                        <li><span class="product-name">Nhà Giả Kim</span> <span class="product-quantity">x2</span></li>
+                                    </ul>
+                                </td>
+                                <td>200.000đ</td>
+                                <td>
+                                    <select class="form-control status-dropdown">
+                                        <option value="pending">Đang chờ duyệt</option>
+                                        <option value="approved">Đã duyệt</option>
+                                        <option value="shipped">Đã giao</option>
+                                    </select>
+                                </td>
+                                <td><button class="btn btn-info">Chi tiết</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div><!--/.row-->
+</div><!--/.main-->
+
+<style>
+    .product-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .product-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+    }
+    .product-name {
+        flex: 1;
+        text-align: left;
+    }
+    .product-quantity {
+        font-weight: bold;
+        margin-left: 10px;
+    }
+</style>
+
+<script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+</body>
+</html>

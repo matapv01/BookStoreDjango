@@ -1,0 +1,396 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Bảng điều khiển</a></li>
+            <li class="breadcrumb-item active">Quản lý đơn hàng</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern animations */
+    @keyframes slideIn {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Card styling */
+    .orders-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .orders-card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+    }
+
+    /* Table styling */
+    .table {
+        margin-bottom: 0;
+    }
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-top: none;
+        padding: 1rem;
+    }
+    .table td {
+        vertical-align: middle;
+        padding: 1rem;
+    }
+    
+   /* Status badges */
+   .status-badge {
+       padding: 0.6rem 1.2rem;
+       border-radius: 50px;
+       font-size: 0.85rem;
+       font-weight: 500;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       min-width: 140px;
+       transition: all 0.3s ease;
+       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+       animation: fadeIn 0.5s ease;
+   }
+   
+   .status-badge:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+   }
+   
+   .status-badge i {
+       margin-right: 8px;
+       font-size: 1rem;
+   }
+   
+   .badge-pending {
+       background: linear-gradient(45deg, #ffc107, #ffdb4d);
+       color: #000;
+   }
+   
+   .badge-processing {
+       background: linear-gradient(45deg, #17a2b8, #4ac6db);
+       color: #fff;
+   }
+   
+   .badge-shipped {
+       background: linear-gradient(45deg, #007bff, #4da3ff);
+       color: #fff;
+   }
+   
+   .badge-delivered {
+       background: linear-gradient(45deg, #28a745, #5dd879);
+       color: #fff;
+   }
+   
+   .badge-cancelled {
+       background: linear-gradient(45deg, #dc3545, #ff6b7d);
+       color: #fff;
+   }
+
+   /* Action buttons */
+   .action-btn {
+       width: 38px;
+       height: 38px;
+       border-radius: 8px;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       padding: 0;
+       transition: all 0.3s ease;
+       margin: 0 3px;
+       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+   }
+
+   .action-btn:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+   }
+
+   .action-btn i {
+       font-size: 1rem;
+       transition: transform 0.3s ease;
+   }
+
+   .action-btn:hover i {
+       transform: scale(1.1);
+   }
+
+   /* Table row hover effect */
+   .table tbody tr {
+       transition: all 0.3s ease;
+   }
+
+   .table tbody tr:hover {
+       background-color: rgba(0,123,255,0.05) !important;
+       transform: scale(1.01);
+   }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    
+    /* Customer info */
+    .customer-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .customer-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    .customer-email {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .order-id {
+        font-weight: 600;
+        color: #0d6efd;
+    }
+    .order-amount {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    .order-date {
+        white-space: nowrap;
+    }
+    .pagination {
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Quản lý đơn hàng</h1>
+            <p class="text-muted">Quản lý và theo dõi đơn hàng của khách hàng</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" id="exportBtn">
+                <i class="fas fa-file-export me-1"></i> Xuất Excel
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="printBtn" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> In
+            </button>
+        </div>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-primary">Danh sách đơn hàng</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thanh toán</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="order-row" data-status="{{ order.status }}" data-date="{{ order.created_at|date:'Y-m-d' }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter|multiply:100 }}">
+                            <td><a href="{% url 'admin_panel:order_detail' order.pk %}" class="order-id">#{{ order.id }}</a></td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">{{ order.user.get_full_name|default:order.user.username }}</div>
+                                    <div class="customer-email">{{ order.email|default:order.user.email }}</div>
+                                </div>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                            <td>
+                                <span class="status-badge badge-{{ order.status|lower }}">
+                                    <i class="fas fa-{% if order.status == 'PENDING' %}clock
+                                                  {% elif order.status == 'PROCESSING' %}spinner fa-spin
+                                                  {% elif order.status == 'SHIPPED' %}truck
+                                                  {% elif order.status == 'DELIVERED' %}check-circle
+                                                  {% else %}times-circle{% endif %} me-2"></i>
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if order.payment_status == 'Đã thanh toán' %}bg-success
+                                                 {% else %}bg-warning{% endif %} px-3 py-2">
+                                    {{ order.payment_status }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <a href="{% url 'admin_panel:order_detail' order.pk %}" class="btn btn-info btn-action" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-primary btn-action update-status-btn" data-bs-toggle="modal" data-bs-target="#statusModal" data-order-id="{{ order.id }}" data-current-status="{{ order.status }}" title="Cập nhật trạng thái đơn hàng">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    {% if order.status == 'DELIVERED' and order.payment_status == 'Đang chờ thanh toán' %}
+                                    <button type="button" class="btn btn-success btn-action update-payment-btn" data-bs-toggle="modal" data-bs-target="#paymentModal{{ order.id }}" title="Cập nhật trạng thái thanh toán">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                    
+                                    <!-- Payment Update Modal -->
+                                    <div class="modal fade" id="paymentModal{{ order.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Xác nhận thanh toán</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Xác nhận đã nhận thanh toán cho đơn hàng <strong>#{{ order.id }}</strong>?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                                                    <form action="{% url 'admin_panel:update_payment_status' order.pk %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="payment_status" value="Đã thanh toán">
+                                                        <button type="submit" class="btn btn-success">Xác nhận</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if order.status == 'PENDING' %}
+                                    <button type="button" class="btn btn-danger action-btn" data-bs-toggle="modal" data-bs-target="#cancelModal{{ order.id }}" title="Hủy đơn hàng">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    
+                                    <!-- Cancel Order Modal -->
+                                    <div class="modal fade" id="cancelModal{{ order.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Xác nhận hủy đơn</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Bạn có chắc chắn muốn hủy đơn hàng <strong>#{{ order.id }}</strong>?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                                                    <form action="{% url 'admin_panel:update_order_status' order.pk %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="status" value="CANCELLED">
+                                                        <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="py-3">
+                                    <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Không tìm thấy đơn hàng nào</h5>
+                                    <p class="text-muted">Hiện chưa có đơn hàng nào trong hệ thống</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật trạng thái đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="updateStatusForm" action="" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái mới</label>
+                            <select name="status" class="form-select" id="statusSelect">
+                                {% for status, label in order_status_choices %}
+                                    <option value="{{ status }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú (tùy chọn)</label>
+                            <textarea name="notes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    
+    // Handle status update
+    document.querySelectorAll('.update-status-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var orderId = this.getAttribute('data-order-id');
+            var currentStatus = this.getAttribute('data-current-status');
+            document.getElementById('updateStatusForm').setAttribute('action', `/admin-panel/orders/${orderId}/update-status/`);
+            document.getElementById('statusSelect').value = currentStatus;
+        });
+    });
+});
+</script>
+{% endblock %}

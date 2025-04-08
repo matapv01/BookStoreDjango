@@ -1,0 +1,2 @@
+user(username='user', email='user@gmail.com', password='user12345678')" ; "(Roo/PS Workaround: 6)" > $null; start-sleep -milliseconds 150
+admin 123456

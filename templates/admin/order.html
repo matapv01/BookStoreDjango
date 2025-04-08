@@ -1,0 +1,509 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Quản lý đơn hàng</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Card styling */
+    .orders-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .orders-card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+    }
+
+    /* Table styling */
+    .orders-table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        white-space: nowrap;
+        padding: 12px 16px;
+        border-top: none;
+    }
+    
+    .orders-table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+    }
+    
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    /* Status badges */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+        text-align: center;
+        white-space: nowrap;
+        width: auto;
+        min-width: 120px;
+    }
+    
+    .status-badge i {
+        margin-right: 5px;
+    }
+    
+    .badge-pending { background-color: #FFF3CD; color: #856404; }
+    .badge-processing { background-color: #D1ECF1; color: #0C5460; }
+    .badge-shipped { background-color: #CCE5FF; color: #004085; }
+    .badge-delivered { background-color: #D4EDDA; color: #155724; }
+    .badge-cancelled { background-color: #F8D7DA; color: #721C24; }
+    
+    /* Filter section */
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-section .form-control,
+    .filter-section .btn {
+        height: 38px;
+    }
+    
+    .filter-section .date-range {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .filter-section .date-input {
+        width: 140px;
+    }
+    
+    /* Action buttons */
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        margin-right: 5px;
+    }
+    
+    /* Customer info */
+    .customer-info {
+        max-width: 200px;
+    }
+    
+    .customer-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .customer-email {
+        font-size: 0.85rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Status colors for dropdown */
+    .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .status-dot-pending { background-color: #ffc107; }
+    .status-dot-processing { background-color: #17a2b8; }
+    .status-dot-shipped { background-color: #007bff; }
+    .status-dot-delivered { background-color: #28a745; }
+    .status-dot-cancelled { background-color: #dc3545; }
+    
+    /* Modal adjustments */
+    .modal-header {
+        border-bottom-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .modal-footer {
+        border-top-color: rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Quản lý đơn hàng</h1>
+            <p class="text-muted">Danh sách đơn hàng và theo dõi trạng thái</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" id="exportBtn">
+                <i class="fas fa-file-export me-1"></i> Xuất Excel
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="printBtn" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> In
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters section -->
+    <div class="orders-card">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-primary">Bộ lọc</h6>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="clearFilters">
+                <i class="fas fa-times me-1"></i> Xóa bộ lọc
+            </button>
+        </div>
+        <div class="card-body py-3">
+            <div class="filter-section">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm đơn hàng...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <select class="form-select" id="statusFilter" style="max-width: 150px;">
+                    <option value="">Trạng thái</option>
+                    <option value="PENDING"><span class="status-dot status-dot-pending"></span>Đang chờ xử lý</option>
+                    <option value="PROCESSING">Đang xử lý</option>
+                    <option value="SHIPPED">Đã giao cho vận chuyển</option>
+                    <option value="DELIVERED">Đã giao hàng</option>
+                    <option value="CANCELLED">Đã hủy</option>
+                </select>
+                
+                <div class="date-range">
+                    <input type="date" id="startDate" class="form-control date-input" placeholder="Từ ngày">
+                    <span class="text-muted">đến</span>
+                    <input type="date" id="endDate" class="form-control date-input" placeholder="Đến ngày">
+                </div>
+                
+                <button class="btn btn-primary" id="applyFilters">
+                    <i class="fas fa-filter me-1"></i> Lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="orders-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-primary">Danh sách đơn hàng</h6>
+            <span class="badge bg-primary">{{ orders|length }} đơn hàng</span>
+        </div>
+        <div class="table-wrapper">
+            <table class="table orders-table table-hover mb-0" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th style="min-width: 60px;">Mã</th>
+                        <th style="min-width: 180px;">Khách hàng</th>
+                        <th style="min-width: 120px;">Ngày đặt</th>
+                        <th style="min-width: 120px;">Tổng tiền</th>
+                        <th style="min-width: 150px;">Trạng thái</th>
+                        <th style="min-width: 150px;">Thanh toán</th>
+                        <th style="min-width: 120px; width: 120px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr class="order-row" data-status="{{ order.status }}" data-date="{{ order.created_at|date:'Y-m-d' }}">
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">{{ order.user.get_full_name|default:order.user.username }}</div>
+                                <div class="customer-email">{{ order.email|default:order.user.email }}</div>
+                            </div>
+                        </td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                        <td><strong>{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                        <td>
+                            <div class="status-badge badge-{{ order.status|lower }}">
+                                <i class="fas fa-{% if order.status == 'PENDING' %}clock
+                                              {% elif order.status == 'PROCESSING' %}spinner 
+                                              {% elif order.status == 'SHIPPED' %}truck
+                                              {% elif order.status == 'DELIVERED' %}check-circle
+                                              {% else %}times-circle{% endif %}"></i>
+                                {{ order.get_status_display }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {% if order.payment_status == 'PAID' %}bg-success
+                                             {% elif order.payment_status == 'PENDING' %}bg-warning
+                                             {% else %}bg-danger{% endif %}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center">
+                                <a href="{% url 'admin_panel:order_detail' order.pk %}" class="btn btn-sm btn-info action-btn" data-bs-toggle="tooltip" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-primary action-btn" data-bs-toggle="modal" data-bs-target="#statusModal{{ order.id }}" title="Cập nhật trạng thái">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if order.status == 'PENDING' %}
+                                <button type="button" class="btn btn-sm btn-danger action-btn" data-bs-toggle="modal" data-bs-target="#cancelModal{{ order.id }}" title="Hủy đơn hàng">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Status Update Modal -->
+                            <div class="modal fade" id="statusModal{{ order.id }}" tabindex="-1" aria-labelledby="statusModalLabel{{ order.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title" id="statusModalLabel{{ order.id }}">Cập nhật đơn #{{ order.id }}</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{% url 'admin_panel:update_order_status' order.pk %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Trạng thái hiện tại</label>
+                                                    <div class="form-control bg-light">{{ order.get_status_display }}</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Trạng thái mới</label>
+                                                    <select name="status" class="form-select">
+                                                        {% for status, label in order_status_choices %}
+                                                            <option value="{{ status }}" {% if status == order.status %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Ghi chú</label>
+                                                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                <button type="submit" class="btn btn-sm btn-primary">Cập nhật</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if order.status == 'PENDING' %}
+                            <!-- Cancel Order Modal -->
+                            <div class="modal fade" id="cancelModal{{ order.id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ order.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title" id="cancelModalLabel{{ order.id }}">Xác nhận hủy đơn</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Bạn có chắc chắn muốn hủy đơn hàng <strong>#{{ order.id }}</strong> không?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Không</button>
+                                            <form action="{% url 'admin_panel:update_order_status' order.pk %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="CANCELLED">
+                                                <button type="submit" class="btn btn-sm btn-danger">Hủy đơn hàng</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Không có đơn hàng nào</h5>
+                                <p class="text-muted">Hiện chưa có đơn hàng nào trong hệ thống.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterOrders();
+    });
+    
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    statusFilter.addEventListener('change', function() {
+        filterOrders();
+    });
+    
+    // Date filters
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    startDateInput.addEventListener('change', function() {
+        if (this.value) {
+            const selectedDate = new Date(this.value);
+            if (endDateInput.value) {
+                const endDate = new Date(endDateInput.value);
+                if (selectedDate > endDate) {
+                    endDateInput.value = this.value;
+                }
+            }
+        }
+        filterOrders();
+    });
+    
+    endDateInput.addEventListener('change', function() {
+        if (this.value) {
+            const selectedDate = new Date(this.value);
+            if (startDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                if (selectedDate < startDate) {
+                    startDateInput.value = this.value;
+                }
+            }
+        }
+        filterOrders();
+    });
+    
+    // Apply filters button
+    const applyFiltersBtn = document.getElementById('applyFilters');
+    applyFiltersBtn.addEventListener('click', function() {
+        filterOrders();
+    });
+    
+    // Clear filters button
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    clearFiltersBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        statusFilter.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        filterOrders();
+    });
+    
+    // Filter orders function
+    function filterOrders() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedStatus = statusFilter.value;
+        const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+        const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+        
+        const rows = document.querySelectorAll('#ordersTable tbody tr.order-row');
+        
+        rows.forEach(function(row) {
+            let showRow = true;
+            
+            // Filter by search term
+            if (searchTerm) {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.indexOf(searchTerm) === -1) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter by status
+            if (showRow && selectedStatus) {
+                const rowStatus = row.getAttribute('data-status');
+                if (rowStatus !== selectedStatus) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter by date range
+            if (showRow && (startDate || endDate)) {
+                const rowDate = new Date(row.getAttribute('data-date'));
+                
+                if (startDate && rowDate < startDate) {
+                    showRow = false;
+                }
+                
+                if (endDate) {
+                    // Set time to end of day
+                    const endOfDay = new Date(endDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+                    
+                    if (rowDate > endOfDay) {
+                        showRow = false;
+                    }
+                }
+            }
+            
+            // Show or hide row
+            row.style.display = showRow ? '' : 'none';
+        });
+        
+        // Show no results message if needed
+        const visibleRows = document.querySelectorAll('#ordersTable tbody tr.order-row[style=""]').length;
+        const noResultsRow = document.getElementById('noResultsRow');
+        
+        if (visibleRows === 0 && !noResultsRow) {
+            const tbody = document.querySelector('#ordersTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.id = 'noResultsRow';
+            newRow.innerHTML = `
+                <td colspan="7" class="text-center py-4">
+                    <div class="py-3">
+                        <i class="fas fa-search fa-2x text-muted mb-3"></i>
+                        <h6 class="text-muted">Không tìm thấy kết quả</h6>
+                        <p class="text-muted small">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+        } else if (visibleRows > 0 && noResultsRow) {
+            noResultsRow.remove();
+        }
+    }
+    
+    // Excel export functionality
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        alert('Tính năng xuất Excel đang được phát triển.');
+    });
+});
+</script>
+{% endblock %}

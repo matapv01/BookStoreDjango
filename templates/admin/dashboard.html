@@ -1,0 +1,142 @@
+{% extends 'admin/base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Trang chính{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{# Removed inline style block #}
+<div class="container-fluid"> {# Removed pb-4 class #}
+    <!-- Page Title/Breadcrumb -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Trang chính</h1>
+        {# Optional Breadcrumb
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+         #}
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 dashboard-stats-row"> {# Removed mb-4, handled by card margin #}
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                    <div class="text-primary"> {# Wrap icon to apply color class correctly for CSS rule #}
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>{{ total_orders|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng đơn hàng</p>
+                    <small class="text-success">
+                        {{ monthly_orders|default:0|intcomma }} đơn hàng tháng này
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                     <div class="text-success">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3>${{ total_sales|default:0|floatformat:2|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng doanh thu</p>
+                    <small class="text-success">
+                        ${{ monthly_sales|default:0|floatformat:2|intcomma }} tháng này
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                    <div class="text-info">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>{{ total_users|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng người dùng</p>
+                    <small class="text-info">
+                        Trong đó {{ admin_users|default:0 }} tài khoản quản trị
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                     <div class="text-warning">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h3>{{ total_products|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng sản phẩm</p>
+                    {# Add placeholder small text if needed for consistent height #}
+                    <small class="text-transparent">&nbsp;</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="card"> {# mb-4 handled by card default margin #}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Đơn hàng gần đây</h5>
+            <a href="{% url 'admin_panel:orders' %}" class="btn btn-sm btn-outline-primary">Xem tất cả</a> {# Changed to outline #}
+        </div>
+        <div class="card-body p-0"> {# Remove padding to let table-responsive handle it #}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0"> {# Removed mb-0 from table itself, handled by card #}
+                    <thead>
+                        <tr>
+                            <th scope="col">Mã đơn</th> {# Use scope="col" #}
+                            <th scope="col">Khách hàng</th>
+                            <th scope="col">Tổng tiền</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Ngày đặt</th>
+                            <th scope="col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <th scope="row">{{ order.order_number }}</th> {# Use scope="row" for first cell #}
+                            <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                            <td>${{ order.total_amount|floatformat:2 }}</td>
+                            <td>
+                                {# Use new badge classes based on status value #}
+                                <span class="badge
+                                    {% if order.status == 'PENDING' %}bg-secondary
+                                    {% elif order.status == 'PROCESSING' %}bg-info
+                                    {% elif order.status == 'SHIPPED' %}bg-primary
+                                    {% elif order.status == 'DELIVERED' %}bg-success
+                                    {% elif order.status == 'CANCELLED' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {# Add more actions if needed #}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">Không tìm thấy đơn hàng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
