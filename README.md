@@ -80,15 +80,3 @@ bookstore/
 1. Truy cập trang chủ: http://localhost:8000
 2. Truy cập admin: http://localhost:8000/admin
 3. Truy cập admin panel: http://localhost:8000/admin-panel
-
-## Đóng góp
-
-1. Fork repository
-2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
-3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. Push lên branch (`git push origin feature/AmazingFeature`)
-5. Tạo Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
