@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Giỏ hàng - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Giỏ hàng</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Giỏ hàng của bạn</h2>
+                    
+                    {% if cart_items %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Tổng</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.product.image %}
+                                            <img src="{{ item.product.image }}" alt="{{ item.product.name }}" class="me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                <small class="text-muted">{{ item.product.category.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if item.product.discount %}
+                                        <span class="text-decoration-line-through text-muted me-2">
+                                            {{ item.product.price|floatformat:0 }}đ
+                                        </span>
+                                        <span class="text-danger fw-bold">
+                                            {{ item.product.discounted_price|floatformat:0 }}đ
+                                        </span>
+                                        {% else %}
+                                        <span class="fw-bold">{{ item.product.price|floatformat:0 }}đ</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="input-group" style="width: 120px;">
+                                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.product.id }}, 'decrease')">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" class="form-control form-control-sm text-center" value="{{ item.quantity }}" 
+                                                   min="1" max="{{ item.product.stock }}" onchange="updateQuantity({{ item.product.id }}, 'set', this.value)">
+                                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.product.id }}, 'increase')">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold">{{ item.total_price|floatformat:0 }}đ</td>
+                                    <td>
+                                        <button class="btn btn-link text-danger p-0" onclick="removeItem({{ item.product.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-4">Giỏ hàng của bạn đang trống</p>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                            Tiếp tục mua sắm
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Tổng đơn hàng</h3>
+                    
+                    {% if cart_items %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính</span>
+                        <span>{{ cart.subtotal|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển</span>
+                        <span>{{ cart.shipping_fee|floatformat:0 }}đ</span>
+                    </div>
+                    {% if cart.discount %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Giảm giá</span>
+                        <span class="text-danger">-{{ cart.discount|floatformat:0 }}đ</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Tổng cộng</span>
+                        <span class="fw-bold">{{ cart.total|floatformat:0 }}đ</span>
+                    </div>
+
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100">
+                        Tiến hành đặt hàng
+                    </a>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted mb-0">Chưa có sản phẩm nào</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQuantity(productId, action, value = null) {
+        let quantity = 1;
+        const input = document.querySelector(`input[onchange*="${productId}"]`);
+        
+        if (action === 'increase') {
+            quantity = parseInt(input.value) + 1;
+        } else if (action === 'decrease') {
+            quantity = parseInt(input.value) - 1;
+        } else if (action === 'set') {
+            quantity = parseInt(value);
+        }
+
+        if (quantity < 1) quantity = 1;
+        if (quantity > parseInt(input.max)) quantity = parseInt(input.max);
+
+        $.ajax({
+            url: `/cart/update/${productId}/`,
+            method: 'POST',
+            data: {
+                quantity: quantity,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function removeItem(productId) {
+        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+            $.ajax({
+                url: `/cart/remove/${productId}/`,
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,236 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Chi tiết đơn hàng #{{ order.id }} - {{ settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Reset và style cơ bản */
+    .card {
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+        background: #fff;
+    }
+    
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Style cho bảng sản phẩm */
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .product-table th {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+    
+    .product-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: top;
+    }
+    
+    .product-table th.text-end,
+    .product-table td.text-end {
+        text-align: right;
+    }
+    
+    .product-table th.text-center,
+    .product-table td.text-center {
+        text-align: center;
+    }
+    
+    .product-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .product-sku {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    /* Style cho status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5em 0.75em;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .status-pending { background: #ffc107; color: #000; }
+    .status-processing { background: #0dcaf0; color: #000; }
+    .status-shipped { background: #0d6efd; color: #fff; }
+    .status-delivered { background: #198754; color: #fff; }
+    .status-cancelled { background: #dc3545; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Chi tiết đơn hàng #{{ order.order_number }}</h4>
+        </div>
+        <div class="card-body">
+            <!-- Thông tin đơn hàng và thanh toán -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Thông tin đơn hàng</h5>
+                    <p><strong>Trạng thái:</strong> 
+                        <span class="status-badge {% if order.status == 'PENDING' %}status-pending
+                                               {% elif order.status == 'PROCESSING' %}status-processing
+                                               {% elif order.status == 'SHIPPED' %}status-shipped
+                                               {% elif order.status == 'DELIVERED' %}status-delivered
+                                               {% else %}status-cancelled{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Ngày đặt hàng:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Cập nhật lần cuối:</strong> {{ order.updated_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Thông tin thanh toán</h5>
+                    <p><strong>Phương thức:</strong> {{ order.get_payment_method_display }}</p>
+                    <p>
+                        <strong>Trạng thái:</strong> 
+                        <span class="status-badge {% if order.payment_status == 'Đã thanh toán' %}status-delivered{% else %}status-pending{% endif %}">
+                            {{ order.payment_status }}
+                        </span>
+                    </p>
+                    {% if order.transaction_id %}
+                    <p class="mb-0"><strong>Mã giao dịch:</strong> <span class="font-monospace">{{ order.transaction_id }}</span></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Thông tin khách hàng -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Thông tin khách hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Tên:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
+                            <p><strong>Email:</strong> {{ order.email }}</p>
+                            <p><strong>Số điện thoại:</strong> {{ order.phone_number }}</p>
+                            <p class="mb-0"><strong>Địa chỉ:</strong> {{ order.shipping_address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sản phẩm đã đặt</h5>
+                </div>
+                <div class="card-body">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%">Sản phẩm</th>
+                                <th style="width: 20%" class="text-end">Đơn giá</th>
+                                <th style="width: 15%" class="text-center">Số lượng</th>
+                                <th style="width: 15%" class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.orderitem_set.all %}
+                            <tr>
+                                <td>
+                                    <div class="product-name">{{ item.product.name }}</div>
+                                    <div class="product-sku">SKU: {{ item.product.id }}</div>
+                                </td>
+                                <td class="text-end">{{ item.price|floatformat:0 }}đ</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="text-end">{{ item.total|floatformat:0 }}đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                <td class="text-end"><strong>{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'admin_panel:orders' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+                {% if order.status == 'PENDING' %}
+                <form method="post" action="{% url 'admin_panel:update_order_status' order.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                        <i class="fas fa-times me-2"></i>Hủy đơn hàng
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('form[action*="update_order_status"]').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const orderId = form.find('input[name="status"]').val() === 'CANCELLED' ? '{{ order.id }}' : null;
+        
+        if (orderId) {
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        const statusBadge = $('.status-badge');
+                        statusBadge
+                            .removeClass()
+                            .addClass('status-badge status-cancelled')
+                            .html('<i class="fas fa-times-circle"></i> Đã hủy');
+                        
+                        form.closest('.card-footer').find('form').hide();
+                        alert('Hủy đơn hàng thành công!');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra khi hủy đơn hàng');
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại!');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
+

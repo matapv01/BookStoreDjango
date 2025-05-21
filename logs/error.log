@@ -1,0 +1,21 @@
+INFO 2025-03-30 21:41:27,983 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:14:04,484 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:22:32,129 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:23:02,328 autoreload D:\BookStore-Django\main\models.py changed, reloading.
+INFO 2025-03-30 22:23:03,149 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:23:18,155 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:24:10,022 autoreload D:\BookStore-Django\admin_panel\admin.py changed, reloading.
+INFO 2025-03-30 22:24:10,638 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:25:23,161 autoreload D:\BookStore-Django\admin_panel\models.py changed, reloading.
+INFO 2025-03-30 22:25:23,912 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:26:18,034 autoreload D:\BookStore-Django\admin_panel\views.py changed, reloading.
+INFO 2025-03-30 22:26:18,625 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:27:25,107 autoreload D:\BookStore-Django\admin_panel\forms.py changed, reloading.
+INFO 2025-03-30 22:27:25,729 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:28:37,506 autoreload D:\BookStore-Django\admin_panel\urls.py changed, reloading.
+INFO 2025-03-30 22:28:38,130 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 22:38:46,135 autoreload D:\BookStore-Django\admin_panel\admin.py changed, reloading.
+INFO 2025-03-30 22:38:46,856 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 23:09:57,075 autoreload D:\BookStore-Django\admin_panel\urls\__init__.py changed, reloading.
+INFO 2025-03-30 23:09:57,743 autoreload Watching for file changes with StatReloader
+INFO 2025-03-30 23:16:32,680 autoreload D:\BookStore-Django\admin_panel\admin.py changed, reloading.

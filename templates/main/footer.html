@@ -1,0 +1,44 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/footer.css' %}">
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-content-right">
+                <div class="footer-content-right-item">
+                    <h3>Liên kết nhanh</h3>
+                    <ul>
+                        <li><a href="{% url 'main:home' %}">Trang chủ</a></li>
+                        <li><a href="{% url 'main:category_list' %}">Danh mục sản phẩm</a></li>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-content-right-item">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách vận chuyển</a></li>
+                    </ul>
+                </div>
+                <div class="footer-content-right-contact">
+                    <h3>Liên hệ</h3>
+                    {% if system_settings.contact_email %}
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:{{ system_settings.contact_email }}">{{ system_settings.contact_email }}</a></p>
+                    {% endif %}
+                    {% if system_settings.phone_number %}
+                    <p><i class="fas fa-phone"></i> <a href="tel:{{ system_settings.phone_number }}">{{ system_settings.phone_number }}</a></p>
+                    {% endif %}
+                    {% if system_settings.address %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ system_settings.address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} {{ system_settings.site_name|default:"BookStore" }}. {{ system_settings.site_description|default:"Mở tri thức, mở tương lai" }}</p>
+        </div>
+    </div>
+</footer>

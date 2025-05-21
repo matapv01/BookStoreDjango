@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thanh toán - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cart:cart' %}">Giỏ hàng</a></li>
+            <li class="breadcrumb-item active">Thanh toán</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Order Form -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Thông tin đặt hàng</h2>
+                    
+                    <form method="post" id="checkoutForm">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Thông tin cá nhân</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Họ</label>
+                                    <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên</label>
+                                    <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="tel" name="phone" class="form-control" value="{{ user.phone }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Địa chỉ giao hàng</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Địa chỉ</label>
+                                <textarea name="address" class="form-control" rows="3" required>{{ user.address }}</textarea>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tỉnh/Thành phố</label>
+                                    <input type="text" name="city" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Quận/Huyện</label>
+                                    <input type="text" name="district" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phường/Xã</label>
+                                    <input type="text" name="ward" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Mã bưu điện</label>
+                                    <input type="text" name="postal_code" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Phương thức thanh toán</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" value="cod" id="cod" checked>
+                                        <label class="form-check-label" for="cod">
+                                            Thanh toán khi nhận hàng (COD)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" value="bank" id="bank">
+                                        <label class="form-check-label" for="bank">
+                                            Chuyển khoản ngân hàng
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Notes -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Ghi chú đơn hàng</h5>
+                            <div class="mb-3">
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Ghi chú về đơn hàng của bạn (không bắt buộc)"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Đặt hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Tổng đơn hàng</h3>
+                    
+                    <!-- Order Items -->
+                    <div class="mb-4">
+                        {% for item in cart_items %}
+                        <div class="d-flex align-items-center mb-3">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                <small class="text-muted">Số lượng: {{ item.quantity }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">{{ item.total_price|floatformat:0 }}đ</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Order Total -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính</span>
+                        <span>{{ cart.subtotal|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển</span>
+                        <span>{{ cart.shipping_fee|floatformat:0 }}đ</span>
+                    </div>
+                    {% if cart.discount %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Giảm giá</span>
+                        <span class="text-danger">-{{ cart.discount|floatformat:0 }}đ</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Tổng cộng</span>
+                        <span class="fw-bold">{{ cart.total|floatformat:0 }}đ</span>
+                    </div>
+
+                    <!-- Bank Transfer Info -->
+                    <div id="bankInfo" class="alert alert-info d-none">
+                        <h6 class="alert-heading">Thông tin chuyển khoản</h6>
+                        <p class="mb-0">
+                            Ngân hàng: Vietcombank<br>
+                            Số tài khoản: 123456789<br>
+                            Chủ tài khoản: BookStore<br>
+                            Nội dung: {{ order_code }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Show/hide bank transfer info
+        $('input[name="payment_method"]').change(function() {
+            if ($(this).val() === 'bank') {
+                $('#bankInfo').removeClass('d-none');
+            } else {
+                $('#bankInfo').addClass('d-none');
+            }
+        });
+
+        // Form validation
+        $('#checkoutForm').submit(function(e) {
+            let isValid = true;
+            
+            // Required fields
+            $(this).find('[required]').each(function() {
+                if (!$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+            }
+        });
+    });
+</script>
+{% endblock %} 

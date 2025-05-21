@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sản phẩm - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Bộ lọc</h5>
+                    <form method="get" id="filterForm">
+                        <!-- Search -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Tìm kiếm</h6>
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Tên sách..." value="{{ search_query }}"
+                                   onchange="this.form.submit()">
+                        </div>
+                        
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Danh mục</h6>
+                            <div class="list-group">
+                                {% for category in categories %}
+                                <label class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input me-2" type="radio" name="category" 
+                                               value="{{ category.slug }}" 
+                                               {% if category_slug == category.slug %}checked{% endif %}
+                                               onchange="this.form.submit()">
+                                        {{ category.name }}
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">
+                                        {{ category.product_set.count }}
+                                    </span>
+                                </label>
+                                {% if category.children.exists %}
+                                    {% for child in category.children.all %}
+                                    <label class="list-group-item d-flex justify-content-between align-items-center ps-5">
+                                        <div>
+                                            <input class="form-check-input me-2" type="radio" name="category" 
+                                                   value="{{ child.slug }}" 
+                                                   {% if category_slug == child.slug %}checked{% endif %}
+                                                   onchange="this.form.submit()">
+                                            {{ child.name }}
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">
+                                            {{ child.product_set.count }}
+                                        </span>
+                                    </label>
+                                    {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Sắp xếp theo</h6>
+                            <select name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="">Mặc định</option>
+                                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Giá tăng dần</option>
+                                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Giá giảm dần</option>
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Tên A-Z</option>
+                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Mới nhất</option>
+                            </select>
+                        </div>
+
+                        {% if search_query or category_slug %}
+                        <a href="{% url 'main:product_list' %}" class="btn btn-outline-secondary w-100">
+                            Xóa bộ lọc
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            {% if search_query or category_slug %}
+            <div class="alert alert-info mb-4">
+                {% if search_query and category_slug %}
+                    Kết quả tìm kiếm cho "{{ search_query }}" trong danh mục {{ category_slug }}
+                {% elif search_query %}
+                    Kết quả tìm kiếm cho "{{ search_query }}"
+                {% elif category_slug %}
+                    Danh mục: {{ category_slug }}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for product in products %}
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm d-flex flex-column">
+                        <div class="product-image-container" style="height: 250px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                            {% if product.image %}
+                            <img src="{{ product.image }}" class="card-img-top h-100 w-100" alt="{{ product.name }}" style="object-fit: cover;">
+                            {% else %}
+                            <i class="fas fa-book fa-3x text-muted"></i>
+                            {% endif %}
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">
+                                <a href="{% url 'main:product_detail' product.slug %}" class="text-decoration-none text-dark">
+                                    {{ product.name }}
+                                </a>
+                            </h5>
+                            <p class="card-text text-muted flex-grow-1">{{ product.description|truncatewords:20 }}</p>
+                            <div class="product-price mt-auto">
+                                {% if product.discount %}
+                                <p class="card-text mb-0">
+                                    <span class="text-decoration-line-through text-muted me-2">
+                                        {{ product.price|floatformat:0 }}đ
+                                    </span>
+                                    <span class="text-danger fw-bold">
+                                        {{ product.discounted_price|floatformat:0 }}đ
+                                    </span>
+                                    <span class="badge bg-danger ms-2">-{{ product.discount }}%</span>
+                                </p>
+                                {% else %}
+                                <p class="card-text fw-bold text-success mb-0">{{ product.price|floatformat:0 }}đ</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a href="{% url 'main:product_detail' product.slug %}" class="btn btn-success w-100">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        Không tìm thấy sản phẩm nào phù hợp với tiêu chí tìm kiếm.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination - Always show -->
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                    <li class="page-item {% if products.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

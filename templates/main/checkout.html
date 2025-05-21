@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thanh toán - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-section {
+        background: #f8f9fa;
+        padding: 3rem 0;
+        min-height: 80vh;
+    }
+
+    .checkout-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        border-radius: 0.5rem;
+    }
+
+    .checkout-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+    }
+
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 2.5rem;
+        color: var(--primary-color);
+    }
+
+    .order-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        transition: transform 0.3s;
+    }
+
+    .order-item:hover {
+        transform: translateX(5px);
+    }
+
+    .order-item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-right: 1rem;
+    }
+
+    .order-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .order-item-details {
+        flex: 1;
+    }
+
+    .order-item-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .order-item-meta {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .order-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .order-summary-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .payment-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .payment-method {
+        display: none;
+    }
+
+    .payment-method + label {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 2px solid var(--primary-light);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .payment-method:checked + label {
+        border-color: var(--primary-color);
+        background-color: var(--primary-lighter);
+    }
+
+    .payment-method + label i {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        color: var(--primary-color);
+    }
+
+    .btn-place-order {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        border: none;
+        border-radius: 0.5rem;
+        color: white;
+        font-weight: 500;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+
+    .btn-place-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        color: white;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert i {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-section">
+    <div class="container">
+        <!-- Checkout Header -->
+        <div class="checkout-header" data-aos="fade-down">
+            <h1 class="mb-0"><i class="fas fa-credit-card me-2"></i>Thanh toán</h1>
+        </div>
+
+        {% if cart.items.count > 0 %}
+            <div class="row">
+                <!-- Checkout Form -->
+                <div class="col-lg-7 mb-4" data-aos="fade-right">
+                    <div class="checkout-form">
+                        <h4 class="mb-4">Thông tin giao hàng</h4>
+                        <form method="post" id="checkout-form">
+                            {% csrf_token %}
+
+                            <div class="form-group">
+                                <label for="shipping_address" class="form-label">Địa chỉ giao hàng</label>
+                                <i class="fas fa-map-marker-alt form-icon"></i>
+                                <textarea name="shipping_address" id="shipping_address" class="form-control" rows="3" required>{{ user.profile.address }}</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone_number" class="form-label">Số điện thoại</label>
+                                <i class="fas fa-phone form-icon"></i>
+                                <input type="tel" name="phone_number" id="phone_number" class="form-control" 
+                                       value="{{ user.profile.phone }}" required>
+                            </div>
+
+                            <!-- Payment Methods -->
+                            <div class="payment-methods">
+                                <h5 class="mb-3">Phương thức thanh toán</h5>
+                                {% for method, label in payment_methods %}
+                                    <div>
+                                        <input type="radio" name="payment_method" id="payment_{{ method }}"
+                                               value="{{ method }}" class="payment-method" 
+                                               {% if forloop.first %}checked{% endif %}>
+                                        <label for="payment_{{ method }}">
+                                            <i class="fas fa-{% if method == 'cod' %}truck
+                                                         {% elif method == 'bank_transfer' %}university
+                                                         {% else %}credit-card{% endif %}"></i>
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button type="submit" class="btn-place-order">
+                                <i class="fas fa-shopping-bag me-2"></i>Đặt hàng
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-5" data-aos="fade-left">
+                    <div class="order-summary">
+                        <h4 class="mb-4">Đơn hàng của bạn</h4>
+                        {% for item in cart.items.all %}
+                            <div class="order-item">
+                                <div class="order-item-image">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <img src="{% static 'img/no-image.jpg' %}" alt="No image">
+                                    {% endif %}
+                                </div>
+                                <div class="order-item-details">
+                                    <div class="order-item-title">{{ item.product.name }}</div>
+                                    <div class="order-item-meta">
+                                        {{ item.quantity }} x {% if item.product.discount %}{{ item.product.discounted_price|floatformat:0 }}{% else %}{{ item.product.price|floatformat:0 }}{% endif %}đ
+                                    </div>
+                                </div>
+                                <div class="order-item-total">
+                                    <strong>{{ item.get_total|floatformat:0 }}đ</strong>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="order-summary-row">
+                            <span>Tạm tính</span>
+                            <span>{{ cart.total|floatformat:0 }}đ</span>
+                        </div>
+                        <div class="order-summary-row">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-success">Miễn phí</span>
+                        </div>
+                        <div class="order-summary-row">
+                            <strong>Tổng cộng</strong>
+                            <strong class="text-success fs-4">{{ cart.total|floatformat:0 }}đ</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5" data-aos="fade-up">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                <h3>Giỏ hàng trống</h3>
+                <p class="text-muted">Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán</p>
+                <a href="{% url 'main:home' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const address = document.getElementById('shipping_address').value;
+            const phone = document.getElementById('phone_number').value;
+
+            if (!address.trim()) {
+                e.preventDefault();
+                alert('Vui lòng nhập địa chỉ giao hàng');
+                return;
+            }
+
+            if (!phone.trim()) {
+                e.preventDefault();
+                alert('Vui lòng nhập số điện thoại');
+                return;
+            }
+        });
+    }
+
+    // Auto-hide alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

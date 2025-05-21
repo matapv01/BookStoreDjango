@@ -1,0 +1,294 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Danh mục{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Reset và loại bỏ các hiệu ứng */
+    .card {
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: none !important;
+    }
+
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    /* Style cho cây danh mục */
+    .category-tree {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .category-tree ul {
+        list-style: none;
+        padding-left: 2rem;
+    }
+
+    .category-tree .category-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background: #fff;
+        transition: none !important;
+    }
+
+    .category-tree .category-item:hover {
+        background: #f8f9fa;
+        transform: none !important;
+    }
+
+    /* Style cho hình ảnh danh mục */
+    .category-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Style cho nút và hành động */
+    .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: none !important;
+    }
+
+    .btn:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .category-actions {
+        opacity: 1;
+        transition: none !important;
+    }
+
+    .category-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Style cho drag handle */
+    .drag-handle {
+        cursor: move;
+        color: #6c757d;
+        padding: 0.25rem;
+    }
+
+    .drag-handle:hover {
+        color: #495057;
+    }
+
+    /* Style cho thông tin danh mục */
+    .category-stats {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    /* Disable AOS animations */
+    [data-aos] {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Danh mục</h1>
+            <p class="text-muted mb-0">Quản lý danh mục sản phẩm</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_panel:add_category' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm Danh mục
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="category-tree" id="categoryTree">
+                        {% for category in categories %}
+                            {% if not category.parent %}
+                                {% include 'admin/category_tree_item.html' with category=category %}
+                            {% endif %}
+                        {% empty %}
+                            <li class="text-center py-4 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <p>Không tìm thấy danh mục nào</p>
+                                <a href="{% url 'admin_panel:add_category' %}" class="btn btn-sm btn-primary">
+                                    Thêm danh mục đầu tiên
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <nav aria-label="Category pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if categories.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </span>
+                                </li>
+                            {% endif %}
+
+                            {% for num in categories.paginator.page_range %}
+                                {% if categories.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if categories.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ categories.paginator.num_pages }}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="col-12 mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Hướng dẫn nhanh</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Mẹo quản lý danh mục:</h6>
+                    <ul class="mb-0">
+                        <li>Kéo và thả để sắp xếp lại danh mục</li>
+                        <li>Nhấp vào mũi tên để mở rộng/thu gọn danh mục con</li>
+                        <li>Sử dụng tên rõ ràng, dễ hiểu</li>
+                        <li>Giữ hệ thống phân cấp đơn giản (tối đa 3 cấp)</li>
+                        <li>Thêm hình ảnh liên quan để hiển thị tốt hơn</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa "<span id="categoryName"></span>"?</p>
+                <div id="warningText" class="alert alert-warning d-none">
+                    Danh mục này chứa danh mục con và/hoặc sản phẩm. Tất cả các mục liên quan sẽ bị xóa.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize Sortable for drag-and-drop
+    const categoryTree = document.getElementById('categoryTree');
+    new Sortable(categoryTree, {
+        handle: '.drag-handle',
+        animation: 150,
+        onEnd: function(evt) {
+            const categoryId = evt.item.dataset.id;
+            const newPosition = evt.newIndex;
+            // TODO: Add AJAX call to update category position
+        }
+    });
+
+    // Handle delete confirmation
+    $('.delete-category').click(function(e) {
+        e.preventDefault();
+        const categoryId = $(this).data('id');
+        const categoryName = $(this).data('name');
+        const hasChildren = $(this).data('has-children') === 'true';
+        const hasProducts = $(this).data('has-products') === 'true';
+
+        $('#categoryName').text(categoryName);
+        $('#warningText').toggleClass('d-none', !hasChildren && !hasProducts);
+        $('#deleteForm').attr('action', $(this).attr('href'));
+        $('#deleteModal').modal('show');
+    });
+
+    // Handle category collapse/expand
+    $('.category-toggle').click(function() {
+        $(this).find('i').toggleClass('fa-caret-right fa-caret-down');
+        $(this).closest('.category-item').next('ul').slideToggle();
+    });
+});
+</script>
+{% endblock %}

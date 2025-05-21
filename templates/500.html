@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}500 - Lỗi máy chủ - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-muted mb-4">500</h1>
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+            </div>
+            <h2 class="mb-4">Lỗi máy chủ</h2>
+            <p class="lead mb-5">Đã xảy ra lỗi trong quá trình xử lý yêu cầu của bạn. Vui lòng thử lại sau.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="javascript:history.back()" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+                <a href="{% url 'main:home' %}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Về trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

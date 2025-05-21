@@ -1,0 +1,428 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Danh mục sản phẩm</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'user/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'user/css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Paytone+One&display=swap" rel="stylesheet">
+    <!-- JS -->
+    <script src="{% static 'user/js/jquery-3.3.1.js' %}"></script>
+    <script src="{% static 'user/js/bootstrap.min.js' %}"></script>
+</head>
+<body>
+    <div class="app">
+        <header id="header">
+            <!-- Header Top -->
+            <div class="header__top">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-5 col-md-0 col-sm-0 header__top-left">
+                            <span style="font-size: 1.5rem; color: #fff;">BookStore - Mở tri thức, mở tương lai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Bottom -->
+            <div class="header__bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!-- Logo -->
+                        <div class="col-lg-3 col-md-4 col-sm-12 header__logo">
+                            <h1 class="header__heading">
+                                <a href="home.html" class="header__logo-link">
+                                    <span class="header__logo-text">BookStore</span>
+                                </a>
+                            </h1>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-lg-6 col-md-7 col-sm-0 header__top-right">
+                            <select class="header__search-select">
+                                <option value="0">All</option>
+                                <option value="1">Sách bán chạy</option>
+                                <option value="2">Sách mới</option>
+                                <option value="3">Manga-Comic</option>
+                            </select>
+                            <input type="text" class="header__search-input" placeholder="Tìm kiếm tại đây...">
+                            <button class="header__search-btn">
+                                <i class="fas fa-search header__search-icon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Navigation Menu -->
+                        <div class="col-lg-3 col-md-0 col-sm-0 header__nav-menu-wrap d-flex align-items-center justify-content-between" style="background: none;">
+                            <!-- Danh mục sản phẩm -->
+                            <a href="category.html" class="menu__link" style="background: none; color: #fff;">
+                                <img src="images/icon/baby-boy.png" alt="Danh mục" class="menu__item-icon" style="filter: brightness(0) invert(1);">
+                                Danh mục sản phẩm
+                            </a>
+
+                            <!-- Giỏ hàng -->
+                            <a href="cart.html" class="header__cart-icon" style="margin-right: 15px;">
+                                <i class="fas fa-shopping-cart" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+
+                            <!-- Profile -->
+                            <a href="profile.html" class="header__user-icon">
+                                <i class="fas fa-user" style="font-size: 1.8rem; color: #fff;"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </header>
+<style>
+    body {
+        background-color: #f5f1f1; /* Màu xám nhẹ */
+    }
+    
+</style>
+
+<!-- Category 1: Sách Bán Chạy -->
+<section id="category1" class="product__love">
+    <div class="container bg-white">
+        <div class="row">
+            <div class="col-12 product__love-title">
+                <h2 class="product__love-heading upper">Sách Bán Chạy</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/image_187163.jpg" alt="Tuổi Thơ Dữ Dội - Tập 2" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="product.html" class="product__panel-link">Tuổi Thơ Dữ Dội - Tập 2 (Tái Bản 2019)</a>
+                </h3>
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">69.000đ</span>
+                </div>
+            </div>
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/image_188285.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="p-name product__panel-link">Chuyện Con Mèo Dạy Hải Âu Bay</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        34.300đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/8936186542176.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Tôi thích một cô gái nhưng không dám ngỏ lời</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        70.000đ
+                    </span>
+                </div>
+            </div>
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/biamem.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class=" product__panel-link">Con Chim Xanh Biếc Bay Về - Tặng Kèm 6 Postcard</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        112.500đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product//8936049524905.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">5 Centimet Trên Giây</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        39.500đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/bia1_tobinhyen_2_1_1.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Tô Bình Yên Vẽ Hạnh Phúc 
+                    </a>
+                </h3>
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        63.960đ
+                    </span>
+                </div> 
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category 2: Sách Mới -->
+<section id="category2" class="product__love">
+    <div class="container bg-white">
+        <div class="row">
+            <div class="col-12 product__love-title">
+                <h2 class="product__love-heading upper">Sách Mới</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/img_7523.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">English Grammar in Use Book with Answer</a>
+                </h3>
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">169.100đ</span>
+                </div>
+            </div>
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/image_193948.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">TOxford Picture Dictionary Third Edition: English - Vietnamese Edition 
+                    </a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        291.650đ
+                    </span>
+                </div> 
+
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/9781108638425.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Mindset For IELTS Level 3 Student's Book With Testbank And Online Modules</a>
+                </h3>
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        375.250đ
+                    </span>
+                </div>
+            </div>
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/9780099590088.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Sapiens : A Brief History of Humankind</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        224.100đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/image_140812.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Elon Musk: How the Billionaire CEO of SpaceX and Tesla is Shaping our Future</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        100.800đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/category/9781250169440_1.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Call Me By Your Name</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        133.000đ
+                    </span>
+                </div> 
+            </div>
+
+        </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category 3: Manga - Comics -->
+<section id="category3" class="product__love">
+    <div class="container bg-white">
+        <div class="row">
+            <div class="col-12 product__love-title">
+                <h2 class="product__love-heading upper">Manga - Comics</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/image_186912.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">My Hero Academia - Tập 3: All Might</a>
+                </h3>
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">18.000đ</span>
+                </div>
+            </div>
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/image_186914.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">My Hero Academia - Tập 5: Todoroki Shoto: Khởi Đầu</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        18.000đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/600my-hero-academia-hoc-vien-sieu-anh-hung.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">My Hero Academia - Tập 27: One's Justice</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        18.000đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/mob-psycho-100_tap-3.jpg" alt="" class="product__panel-img">
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Mob Psycho 100 - Tập 3</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        27.000đ
+                    </span>
+                </div>
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/one-piece-tap-95_chuyen-chu-du-cua-oden_1.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">One Piece - Tập 95 (Bản Bìa Rời)</a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        16.575đ
+                    </span>
+                </div> 
+            </div>
+
+            <div class="product__panel-item col-lg-2 col-md-3 col-sm-6">
+                <div class="product__panel-img-wrap">
+                    <img src="images/product/thanh-guom-diet-quy-tap-12.jpg" alt="" class="product__panel-img" >
+                </div>
+                <h3 class="product__panel-heading">
+                    <a href="#" class="product__panel-link">Thanh Gươm Diệt Quỷ - Tập 12: Các Thượng Huyền Tập Hợp
+                    </a>
+                </h3>
+
+                <div class="product__panel-price">
+                    <span class="product__panel-price-current">
+                        63.960đ
+                    </span>
+                </div> 
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <!-- Footer Top -->
+    <section class="footer__top">
+        <div class="container">
+            <div class="row d-flex justify-content-between">
+                <!-- Giới thiệu -->
+                <article class="footer__top-intro col-lg-5 col-md-4 col-sm-6">
+                    <h4 class="footer__top-intro-heading">Về chúng tôi</h4>
+                    <div class="footer__top-intro-content">
+                        BookStore là cửa hàng sách uy tín, luôn cung cấp sách chính hãng với nội dung hấp dẫn.<br>
+                        Chúng tôi sẽ liên tục cập nhật những cuốn sách mới nhất, hay nhất trong thời gian sớm nhất!<br><br>
+                    </div>
+                </article>
+
+                <!-- Liên hệ (Căn phải toàn cụm, số điện thoại và icon căn trái thẳng hàng) -->
+                <article class="footer__top-contact-wrap col-lg-4 col-md-4 col-sm-6 text-end">
+                    <h4 class="footer__top-contact-heading">Hotline liên hệ</h4>
+                    <div class="footer__top-contact d-flex align-items-start">
+                        <div class="footer__top-contact-icon me-2">
+                            <img src="images/contact/phone_top.png" class="footer__top-contact-img" alt="Hotline" style="vertical-align: top;">
+                        </div>
+                        <div class="footer__top-contact-phone-wrap text-start">
+                            <div class="footer__top-contact-phone">0123.456.789</div>
+                            <div class="footer__top-contact-des">(Giải đáp thắc mắc 24/24)</div>
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Bottom -->
+    <section class="footer__bottom">
+        <div class="container">
+            <div class="row">
+                <span class="footer__bottom-content">@Bản quyền thuộc về BookStore | Thiết kế bởi MinhPV</span>
+            </div>
+        </div>
+    </section>
+</footer>
+<!-- End Footer -->
+<script src="{% static 'user/js/jq.js' %}"></script>
+<script src="{% static 'user/js/index.js' %}"></script>

@@ -1,0 +1,224 @@
+{% extends 'admin/base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Trang chính{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+<style>
+    /* Override animations and effects for recent orders */
+    .card {
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: none !important;
+    }
+
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    .table-hover tbody tr {
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075) !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .table {
+        margin-bottom: 0;
+        width: 100%;
+        color: #212529;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+
+    .table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        transition: none !important;
+    }
+
+    .badge:hover {
+        transform: none !important;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+        transition: none !important;
+    }
+
+    .btn-sm:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Disable AOS animations for table rows */
+    [data-aos] {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{# Removed inline style block #}
+<div class="container-fluid"> {# Removed pb-4 class #}
+    <!-- Page Title/Breadcrumb -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Trang chính</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item active" aria-current="page">Trang chính</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 dashboard-stats-row"> {# Removed mb-4, handled by card margin #}
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                    <div class="text-primary"> {# Wrap icon to apply color class correctly for CSS rule #}
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>{{ total_orders|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng đơn hàng</p>
+                    <small class="text-success">
+                        {{ monthly_orders|default:0|intcomma }} đơn hàng tháng này
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                     <div class="text-success">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3>${{ total_sales|default:0|floatformat:2|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng doanh thu</p>
+                    <small class="text-success">
+                        ${{ monthly_sales|default:0|floatformat:2|intcomma }} tháng này
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                    <div class="text-info">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>{{ total_users|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng người dùng</p>
+                    <small class="text-info">
+                        Trong đó {{ admin_users|default:0 }} tài khoản quản trị
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body dashboard-stat">
+                     <div class="text-warning">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h3>{{ total_products|default:0|intcomma }}</h3>
+                    <p class="text-muted mb-0">Tổng sản phẩm</p>
+                    {# Add placeholder small text if needed for consistent height #}
+                    <small class="text-transparent">&nbsp;</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Đơn hàng gần đây</h5>
+            <a href="{% url 'admin_panel:orders' %}" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đặt</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                            <td>{{ order.total_amount|floatformat:0 }}đ</td>
+                            <td>
+                                <span class="badge {% if order.status == 'PENDING' %}bg-warning
+                                    {% elif order.status == 'PROCESSING' %}bg-info
+                                    {% elif order.status == 'SHIPPED' %}bg-primary
+                                    {% elif order.status == 'DELIVERED' %}bg-success
+                                    {% elif order.status == 'CANCELLED' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">Không có đơn hàng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

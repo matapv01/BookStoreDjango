@@ -1,0 +1,27 @@
+{% extends 'main/header.html' %}
+{% load static %}
+
+{% block title %}404 - Không tìm thấy trang - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-muted mb-4">404</h1>
+            <div class="mb-4">
+                <i class="fas fa-exclamation-circle fa-4x text-warning"></i>
+            </div>
+            <h2 class="mb-4">Không tìm thấy trang</h2>
+            <p class="lead mb-5">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="javascript:history.back()" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+                <a href="{% url 'main:home' %}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Về trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

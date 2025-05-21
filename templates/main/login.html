@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Đăng nhập - {{ settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        background: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .auth-header i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-form {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+        color: white;
+    }
+
+    .auth-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .auth-link:hover {
+        color: var(--primary-hover);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="auth-card" data-aos="fade-up">
+                    <div class="auth-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h4 class="mb-0">Đăng nhập</h4>
+                    </div>
+                    <div class="auth-form">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn-auth">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <p class="text-center mb-0">
+                            Chưa có tài khoản? 
+                            <a href="{% url 'main:register' %}" class="auth-link">Đăng ký ngay</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

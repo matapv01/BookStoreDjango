@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Category Info -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title">{{ category.name }}</h1>
+                    <p class="card-text">{{ category.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Bộ lọc</h5>
+                    <form method="get" id="filterForm">
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Khoảng giá</h6>
+                            <div class="input-group mb-2">
+                                <input type="number" name="min_price" class="form-control" placeholder="Từ" value="{{ request.GET.min_price }}">
+                                <span class="input-group-text">-</span>
+                                <input type="number" name="max_price" class="form-control" placeholder="Đến" value="{{ request.GET.max_price }}">
+                            </div>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Sắp xếp</h6>
+                            <select name="sort" class="form-select">
+                                <option value="">Mặc định</option>
+                                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>
+                                    Giá tăng dần
+                                </option>
+                                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>
+                                    Giá giảm dần
+                                </option>
+                                <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>
+                                    Tên A-Z
+                                </option>
+                                <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>
+                                    Tên Z-A
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div class="mb-4">
+                            <h6 class="mb-2">Tình trạng</h6>
+                            <div class="form-check">
+                                <input type="checkbox" name="in_stock" class="form-check-input" id="inStock" {% if request.GET.in_stock %}checked{% endif %}>
+                                <label class="form-check-label" for="inStock">Còn hàng</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Áp dụng</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product List -->
+        <div class="col-lg-9">
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        {% if product.image %}
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">{{ product.category.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if product.discount %}
+                                    <span class="text-decoration-line-through text-muted me-2">
+                                        {{ product.price|floatformat:0 }}đ
+                                    </span>
+                                    <span class="text-danger fw-bold">
+                                        {{ product.discounted_price|floatformat:0 }}đ
+                                    </span>
+                                    {% else %}
+                                    <span class="fw-bold">{{ product.price|floatformat:0 }}đ</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-primary btn-sm">
+                                    Chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        Không tìm thấy sản phẩm nào trong danh mục này.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                    <li class="page-item {% if products.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Auto submit form when sort changes
+        $('select[name="sort"]').change(function() {
+            $('#filterForm').submit();
+        });
+
+        // Auto submit form when stock status changes
+        $('input[name="in_stock"]').change(function() {
+            $('#filterForm').submit();
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xác nhận đơn hàng #{{ order.order_code }} - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Xác nhận đơn hàng</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success fa-4x"></i>
+                    </div>
+                    <h2 class="card-title mb-3">Đặt hàng thành công!</h2>
+                    <p class="text-muted mb-4">
+                        Cảm ơn bạn đã đặt hàng tại {{ system_settings.site_name }}.<br>
+                        Mã đơn hàng của bạn là: <strong>#{{ order.order_code }}</strong>
+                    </p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a href="{% url 'orders:order_detail' order.order_code %}" class="btn btn-primary">
+                            Xem chi tiết đơn hàng
+                        </a>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary">
+                            Tiếp tục mua sắm
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Chi tiết đơn hàng</h3>
+                    
+                    <!-- Order Items -->
+                    <div class="mb-4">
+                        {% for item in order.items.all %}
+                        <div class="d-flex align-items-center mb-3">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                <small class="text-muted">Số lượng: {{ item.quantity }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">{{ item.total_price|floatformat:0 }}đ</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Order Total -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính</span>
+                        <span>{{ order.subtotal|floatformat:0 }}đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển</span>
+                        <span>{{ order.shipping_fee|floatformat:0 }}đ</span>
+                    </div>
+                    {% if order.discount %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Giảm giá</span>
+                        <span class="text-danger">-{{ order.discount|floatformat:0 }}đ</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Tổng cộng</span>
+                        <span class="fw-bold">{{ order.total|floatformat:0 }}đ</span>
+                    </div>
+
+                    <!-- Shipping Information -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">Thông tin giao hàng</h5>
+                        <p class="mb-1">
+                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                            {{ order.address }}<br>
+                            {{ order.ward }}, {{ order.district }}, {{ order.city }}<br>
+                            {% if order.postal_code %}{{ order.postal_code }}{% endif %}<br>
+                            Điện thoại: {{ order.phone }}
+                        </p>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">Thông tin thanh toán</h5>
+                        <p class="mb-1">
+                            Phương thức: 
+                            {% if order.payment_method == 'cod' %}
+                                Thanh toán khi nhận hàng (COD)
+                            {% else %}
+                                Chuyển khoản ngân hàng
+                            {% endif %}
+                        </p>
+                        {% if order.payment_method == 'bank' %}
+                        <div class="alert alert-info mt-3">
+                            <h6 class="alert-heading">Thông tin chuyển khoản</h6>
+                            <p class="mb-0">
+                                Ngân hàng: Vietcombank<br>
+                                Số tài khoản: 123456789<br>
+                                Chủ tài khoản: BookStore<br>
+                                Nội dung: {{ order.order_code }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if order.notes %}
+                    <!-- Order Notes -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">Ghi chú đơn hàng</h5>
+                        <p class="mb-0">{{ order.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Status -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Trạng thái đơn hàng</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Đặt hàng thành công</h6>
+                                <p class="text-muted mb-0">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Xác nhận đơn hàng</h6>
+                                <p class="text-muted mb-0">Đang chờ xử lý</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Đang giao hàng</h6>
+                                <p class="text-muted mb-0">Chưa bắt đầu</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Giao hàng thành công</h6>
+                                <p class="text-muted mb-0">Chưa hoàn thành</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 30px;
+    }
+    .timeline-marker {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+    }
+    .timeline-marker.bg-success {
+        background-color: #28a745;
+    }
+    .timeline-content {
+        position: relative;
+    }
+    .timeline-content::before {
+        content: '';
+        position: absolute;
+        left: -40px;
+        top: 20px;
+        bottom: -30px;
+        width: 2px;
+        background-color: #e9ecef;
+    }
+    .timeline-item:last-child .timeline-content::before {
+        display: none;
+    }
+</style>
+{% endblock %} 
