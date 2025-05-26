@@ -1,0 +1,535 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %} | BookStore</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        /* Toast styles - Common for both toastr and Bootstrap toast */
+        .toast, #toast-container > div {
+            position: relative;
+            overflow: hidden;
+            margin: 0 0 6px;
+            padding: 0;
+            width: 300px;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            color: #fff;
+            opacity: 1;
+            background: #fff;
+        }
+
+        /* Toast header */
+        .toast-header, #toast-container > div .toast-title {
+            padding: 0.5rem 0.75rem;
+            background: #28a745;
+            color: #fff;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .toast-header i, #toast-container > div::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 0.5rem;
+            color: #fff;
+        }
+
+        .toast-header .btn-close, #toast-container .toast-close-button {
+            color: #fff;
+            opacity: 0.8;
+            background: transparent;
+            border: 0;
+            padding: 0.5rem;
+            margin: -0.5rem -0.5rem -0.5rem auto;
+        }
+
+        .toast-header .btn-close:hover, #toast-container .toast-close-button:hover {
+            opacity: 1;
+        }
+
+        /* Toast body */
+        .toast-body, #toast-container > div .toast-message {
+            padding: 0.75rem;
+            color: #333;
+            background: #fff;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Toast types */
+        .toast.bg-success .toast-header,
+        #toast-container > .toast-success {
+            background: #28a745 !important;
+        }
+
+        .toast.bg-danger .toast-header,
+        #toast-container > .toast-error {
+            background: #dc3545 !important;
+        }
+
+        .toast.bg-warning .toast-header,
+        #toast-container > .toast-warning {
+            background: #ffc107 !important;
+            color: #000 !important;
+        }
+
+        .toast.bg-warning .toast-header i,
+        .toast.bg-warning .toast-header .btn-close,
+        #toast-container > .toast-warning::before,
+        #toast-container > .toast-warning .toast-close-button {
+            color: #000 !important;
+        }
+
+        .toast.bg-info .toast-header,
+        #toast-container > .toast-info {
+            background: #17a2b8 !important;
+        }
+
+        /* Toast icons */
+        .toast.bg-success .toast-header i::before,
+        #toast-container > .toast-success::before {
+            content: "\f00c";
+        }
+
+        .toast.bg-danger .toast-header i::before,
+        #toast-container > .toast-error::before {
+            content: "\f00d";
+        }
+
+        .toast.bg-warning .toast-header i::before,
+        #toast-container > .toast-warning::before {
+            content: "\f071";
+        }
+
+        .toast.bg-info .toast-header i::before,
+        #toast-container > .toast-info::before {
+            content: "\f05a";
+        }
+
+        /* Toast container */
+        #toast-container, .toast-container {
+            position: fixed;
+            z-index: 999999;
+            pointer-events: auto;
+            top: 12px;
+            right: 12px;
+        }
+
+        /* Progress bar */
+        .toast .toast-progress,
+        #toast-container .toast-progress {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            opacity: 0.7;
+        }
+
+        /* Modern Admin Theme */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #333;
+        }
+        
+        /* Card styles */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+            background: #fff;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+        }
+
+        /* Table styles */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .table th {
+            background: #fff;
+            border-bottom: 2px solid #dee2e6;
+            padding: 0.75rem;
+            font-weight: 600;
+            text-align: left;
+            color: #333;
+        }
+
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+            color: #333;
+        }
+
+        .table tbody tr {
+            background: #fff;
+        }
+
+        /* Ensure table is always visible */
+        .table-responsive,
+        .table,
+        .table tbody,
+        .table tr,
+        .table td,
+        .table th {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: revert !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        /* Ensure table rows stay visible */
+        .table tbody tr {
+            background-color: #fff !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+        }
+
+        /* Remove hover effects */
+        .table-hover tbody tr:hover {
+            background-color: #fff !important;
+        }
+
+        /* Remove all transitions and animations */
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+
+        /* Button styles */
+        .btn {
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+            color: #fff;
+        }
+
+        /* Form control styles */
+        .form-control {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: none;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: none;
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Filter section styles */
+        .filter-section {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-section .form-label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-section .form-select,
+        .filter-section .form-control {
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Badge styles - remove backgrounds */
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.875em;
+            font-weight: 500;
+            border-radius: 0.25rem;
+            background: none;
+        }
+
+        .badge.bg-danger {
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .badge.bg-warning {
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .badge.bg-info {
+            color: #0dcaf0;
+            border: 1px solid #0dcaf0;
+        }
+
+        .badge.bg-success {
+            color: #198754;
+            border: 1px solid #198754;
+        }
+
+        /* Form switch styles */
+        .form-check-input {
+            width: 1em;
+            height: 1em;
+            margin-top: 0;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+        }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .form-check-input:disabled {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Pagination styles */
+        .pagination {
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .page-link {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+            margin: 0 0.125rem;
+            color: #0d6efd;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+        }
+
+        .page-link:hover {
+            color: #0a58ca;
+            background-color: #fff;
+            border-color: #dee2e6;
+        }
+
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        /* Stats numbers - remove backgrounds */
+        .stats-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            background: none;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+            background: none;
+        }
+
+        /* Modern scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    {% include 'admin/header.html' %} {# Assuming header.html contains the <header class="navbar ..."> element #}
+
+    <div class="d-flex"> {# Use flexbox for layout #}
+        <!-- Sidebar -->
+        {# Use include for sidebar for better organization #}
+        {% include 'admin/sidebar.html' %}
+
+        <!-- Main content -->
+        <main class="col-md-9"> {# Class matches CSS selector #}
+            <div class="pt-3 px-4"> {# Add padding inside main, after fixed header space is accounted for by main's padding-top in CSS #}
+                {% block breadcrumb %}
+                    {# Optional: Add breadcrumbs here if desired #}
+                {% endblock %}
+
+                {% if messages %}
+                    <div class="mb-3"> {# Add margin below messages #}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Configure toastr
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut",
+            "tapToDismiss": false,
+            "toastClass": "toast",
+            "bodyClass": "toast-body",
+            "iconClass": "toast-header"
+        };
+
+        $(document).ready(function() {
+            // Initialize AOS only if not on dashboard page
+            if (!window.location.pathname.includes('dashboard')) {
+                AOS.init({
+                    duration: 800,
+                    once: true,
+                    offset: 50
+                });
+            }
+
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Handle sidebar toggle
+            $('#sidebarToggle').click(function(e) {
+                e.preventDefault();
+                $('.sidebar').toggleClass('show');
+                $(this).find('i').toggleClass('fa-rotate-180');
+            });
+
+            // Add fade-in effect to alerts
+            $('.alert').addClass('fade-enter');
+            setTimeout(function() {
+                $('.alert').addClass('fade-enter-active');
+            }, 100);
+
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut();
+            }, 5000);
+
+            // Add hover effect to cards only if not on dashboard page
+            if (!window.location.pathname.includes('dashboard')) {
+                $('.card').hover(
+                    function() { $(this).addClass('shadow-lg'); },
+                    function() { $(this).removeClass('shadow-lg'); }
+                );
+            }
+
+            // Add animation to tables only if not on dashboard page
+            if (!window.location.pathname.includes('dashboard')) {
+                $('.table tbody tr').each(function(index) {
+                    $(this).attr('data-aos', 'fade-up');
+                    $(this).attr('data-aos-delay', index * 100);
+                });
+            }
+
+            // Initialize Bootstrap toasts
+            $('.toast').toast({
+                animation: true,
+                autohide: true,
+                delay: 5000
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

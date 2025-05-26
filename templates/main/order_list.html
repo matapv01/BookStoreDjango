@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Đơn hàng của tôi - {{ system_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'main:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Đơn hàng của tôi</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar }}" alt="{{ request.user.username }}" 
+                            class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;"
+                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'default-avatar\'><i class=\'fas fa-user\'></i></div>';">
+                    {% else %}
+                        <div class="default-avatar" style="width: 150px; height: 150px; margin: 0 auto 1rem; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #adb5bd; font-size: 3rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.username }}</h5>
+                    <p class="text-muted mb-3">Thành viên từ {{ request.user.date_joined|date:"d/m/Y" }}</p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'main:profile' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                    </a>
+                    <a href="{% url 'main:order_history' %}" class="list-group-item list-group-item-action active bg-success text-white border-success">
+                        <i class="fas fa-shopping-bag me-2"></i>Đơn hàng của tôi
+                    </a>
+                    <a href="{% url 'main:change_password' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Đơn hàng của tôi</h5>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thanh toán</th>
+                                        <th class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td><strong>#{{ order.id }}</strong></td>
+                                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td><strong>{{ order.total_amount|floatformat:0|intcomma }}đ</strong></td>
+                                        <td>
+                                            <span class="badge bg-{% if order.status == 'DELIVERED' %}success{% elif order.status == 'CANCELLED' %}danger{% elif order.status == 'PROCESSING' %}info{% elif order.status == 'SHIPPED' %}success{% else %}warning{% endif %}">
+                                                {{ order.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{% if order.payment_status == 'Đã thanh toán' %}success{% else %}warning{% endif %}">
+                                                {{ order.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{% url 'main:order_detail' order.id %}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-eye"></i> Chi tiết
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                            <h5>Bạn chưa có đơn hàng nào</h5>
+                            <p class="text-muted">Hãy bắt đầu mua sắm ngay hôm nay!</p>
+                            <a href="{% url 'main:home' %}" class="btn btn-success">
+                                <i class="fas fa-shopping-cart me-2"></i>Mua sắm ngay
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+#searchInput {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Simple search functionality
+    $("#searchInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("table tbody tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+{% endblock %}

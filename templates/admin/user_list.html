@@ -1,0 +1,1026 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Quản lý người dùng</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+<style>
+    /* Reset all transitions and animations */
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    /* Basic container styles */
+    .container-fluid {
+        padding: 1rem;
+    }
+
+    /* Card styles - no shadows, simple borders */
+    .card {
+        border: 1px solid #ddd;
+        margin-bottom: 1rem;
+        background: #fff;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Stats cards - simple layout */
+    .stats-card {
+        border: 1px solid #ddd;
+    }
+    .stats-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stats-icon i {
+        font-size: 1.5rem;
+    }
+
+    /* Table styles - clean and simple */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+    .table th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #ddd;
+        padding: 0.75rem;
+        font-weight: 500;
+        text-align: left;
+    }
+    .table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #ddd;
+        vertical-align: middle;
+    }
+    .table tbody tr {
+        background: #fff;
+    }
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    /* User avatar styles */
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #e3e6f0;
+        background-color: #fff;
+        display: block;
+    }
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f8f9fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4e73df;
+        border: 1px solid #e3e6f0;
+    }
+
+    /* Badge styles */
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 500;
+        border-radius: 0.25rem;
+    }
+    .role-badge {
+        min-width: 80px;
+        text-align: center;
+    }
+
+    /* Button styles - simple and flat */
+    .btn {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+    }
+    .btn-primary {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+    .btn-outline-primary {
+        color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .btn-outline-secondary {
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+    }
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    /* Form control styles */
+    .form-check-input {
+        width: 1em;
+        height: 1em;
+        margin-top: 0;
+        border: 1px solid #ddd;
+        background-color: #fff;
+    }
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .form-check-input:disabled {
+        background-color: #e9ecef;
+        border-color: #ddd;
+    }
+
+    /* Modal styles */
+    .modal-content {
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+    }
+    .modal-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+        padding: 0.75rem 1rem;
+    }
+    .modal-footer {
+        background: #f8f9fa;
+        border-top: 1px solid #ddd;
+        padding: 0.75rem 1rem;
+    }
+
+    /* DataTables customization */
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+    }
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        padding: 0.375rem 2rem 0.375rem 0.75rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border: 1px solid #ddd;
+        padding: 0.375rem 0.75rem;
+        margin: 0 0.25rem;
+        border-radius: 0.25rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff !important;
+    }
+
+    /* Style cho tùy chọn hiển thị */
+    .display-options {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+    }
+
+    .display-options .form-label {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .display-options .form-select-sm {
+        font-size: 0.875rem;
+        padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+        height: auto;
+    }
+
+    .display-options .input-group-sm {
+        height: 31px;
+    }
+
+    .display-options .input-group-sm .form-control {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .display-options .input-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .display-options .input-group-sm .btn i {
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        .display-options .row {
+            flex-direction: column;
+        }
+        
+        .display-options .col-md-8,
+        .display-options .col-md-4 {
+            width: 100%;
+        }
+        
+        .display-options .input-group-sm {
+            max-width: 100% !important;
+        }
+    }
+
+    /* Style cho phân trang */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination .page-link {
+        padding: 0.375rem 0.75rem;
+        color: #0d6efd;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    .password-container {
+        position: relative;
+        overflow: hidden;
+    }
+    .password-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        background: transparent;
+    }
+    #newPassword {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Người dùng</h1>
+            <p class="text-muted mb-0">Quản lý danh sách người dùng</p>
+        </div>
+    </div>
+
+    <div class="card">
+                <div class="card-body">
+            <!-- Bộ lọc -->
+            <div class="filter-section mb-4">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="perPage" class="form-label">Hiển thị:</label>
+                        <select class="form-select" id="perPage" name="page_size">
+                            <option value="5" {% if page_size == 5 %}selected{% endif %}>5</option>
+                            <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+                            <option value="15" {% if page_size == 15 %}selected{% endif %}>15</option>
+                            <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="sortBy" class="form-label">Sắp xếp:</label>
+                        <select class="form-select" id="sortBy" name="sort">
+                            <option value="-date_joined" {% if sort_by == '-date_joined' %}selected{% endif %}>Mới nhất</option>
+                            <option value="date_joined" {% if sort_by == 'date_joined' %}selected{% endif %}>Cũ nhất</option>
+                            <option value="username" {% if sort_by == 'username' %}selected{% endif %}>A-Z</option>
+                            <option value="-username" {% if sort_by == '-username' %}selected{% endif %}>Z-A</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="roleFilter" class="form-label">Vai trò:</label>
+                        <select class="form-select" id="roleFilter" name="role">
+                            <option value="">Tất cả</option>
+                            <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="staff" {% if role == 'staff' %}selected{% endif %}>Staff</option>
+                            <option value="user" {% if role == 'user' %}selected{% endif %}>User</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Tìm kiếm:</label>
+                        <div class="input-group">
+                            <input type="search" name="search" id="search" class="form-control" placeholder="Tìm kiếm..." value="{{ search_query }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+    </div>
+
+            <!-- Bảng người dùng -->
+                    <div class="table-responsive">
+                <table class="table">
+                            <thead>
+                                <tr>
+                            <th>ID</th>
+                            <th>Thông tin</th>
+                                    <th>Email</th>
+                            <th>Điện thoại</th>
+                            <th>Ngày tham gia</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                            <th class="text-end">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                            <td>{{ user.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if user.userprofile.avatar %}
+                                    <img src="{{ user.userprofile.avatar }}" alt="{{ user.username }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                            {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                        <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                        <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                                <small class="text-muted">@{{ user.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                            <td>{{ user.userprofile.phone_number|default:"-" }}</td>
+                            <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if user.is_superuser %}
+                                <span class="badge bg-danger">Quản trị viên</span>
+                                        {% elif user.is_staff %}
+                                <span class="badge bg-warning">Nhân viên</span>
+                                        {% else %}
+                                <span class="badge bg-info">Người dùng</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" type="checkbox" 
+                                           data-user-id="{{ user.id }}"
+                                                   {% if user.is_active %}checked{% endif %}
+                                           {% if user == request.user or user.is_superuser and not request.user.is_superuser %}disabled{% endif %}>
+                                        </div>
+                                    </td>
+                            <td class="text-end">
+                                        <div class="btn-group">
+                                    <a href="{% url 'admin_panel:edit_user' user.id %}" class="btn btn-sm btn-info" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                    <button type="button" class="btn btn-sm btn-warning reset-password" 
+                                            data-user-id="{{ user.id }}"
+                                            data-user-name="{{ user.username }}"
+                                            title="Đặt lại mật khẩu">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger delete-user"
+                                            data-user-id="{{ user.id }}"
+                                            data-user-name="{{ user.username }}"
+                                            {% if user == request.user or user.is_superuser and not request.user.is_superuser %}disabled{% endif %}
+                                            title="Xóa">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Không có người dùng nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+            <!-- Phân trang -->
+            {% if users.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if users.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&page_size={{ page_size }}&sort={{ sort_by }}&role={{ role }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.previous_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&role={{ role }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in users.paginator.page_range %}
+                        {% if users.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > users.number|add:'-3' and num < users.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&sort={{ sort_by }}&role={{ role }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.next_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&role={{ role }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.paginator.num_pages }}&page_size={{ page_size }}&sort={{ sort_by }}&role={{ role }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa người dùng "<span id="userName"></span>"?</p>
+                <p class="text-danger mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+                </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận reset mật khẩu -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận đặt lại mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+                <div class="modal-body">
+                <p>Bạn có chắc chắn muốn đặt lại mật khẩu cho người dùng "<span id="resetPasswordUserName"></span>"?</p>
+                <p class="text-warning mb-0">Người dùng sẽ nhận được email chứa mật khẩu mới.</p>
+                    </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmResetPassword">Xác nhận</button>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+<!-- Modal hiển thị mật khẩu mới -->
+<div class="modal fade" id="newPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mật khẩu mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Mật khẩu mới cho người dùng "<span id="newPasswordUserName"></span>":</p>
+                <div class="password-container" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin-bottom: 15px; position: relative;">
+                    <div id="newPassword" style="font-family: monospace; font-size: 1.2em; font-weight: bold; color: #0c5460; text-align: center; word-break: break-all; min-height: 24px;"></div>
+                </div>
+                <p class="text-warning mb-2">Vui lòng lưu lại mật khẩu này và thông báo cho người dùng.</p>
+                <p class="text-muted mb-0">Modal sẽ tự động đóng sau <span id="countdown">10</span> giây...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận cập nhật trạng thái -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận thay đổi trạng thái</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn <span id="toggleStatusAction"></span> người dùng "<span id="toggleStatusUserName"></span>"?</p>
+                <p class="text-warning mb-0" id="toggleStatusWarning"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmToggleStatus">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Cấu hình toastr
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut",
+        "tapToDismiss": false
+    };
+
+    // Thêm style cho tất cả các loại thông báo
+    $('<style>')
+        .text(`
+            /* Reset style mặc định của toastr */
+            #toast-container {
+                position: fixed;
+                z-index: 999999;
+                pointer-events: auto;
+            }
+            #toast-container * {
+                box-sizing: border-box;
+            }
+            #toast-container > div {
+                position: relative;
+                overflow: hidden;
+                margin: 0 0 6px;
+                padding: 15px 15px 15px 50px;
+                width: 300px;
+                border-radius: 4px;
+                box-shadow: 0 0 12px rgba(0,0,0,0.15);
+                color: #fff;
+                opacity: 1;
+                background-position: 15px center;
+                background-repeat: no-repeat;
+                background-size: 24px;
+                box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            }
+            #toast-container > div:hover {
+                box-shadow: 0 0 12px rgba(0,0,0,0.25);
+                opacity: 1;
+                cursor: pointer;
+            }
+
+            /* Style cho từng loại thông báo */
+            #toast-container > .toast-success {
+                background-color: #28a745 !important;
+                background-image: none !important;
+            }
+            #toast-container > .toast-error {
+                background-color: #dc3545 !important;
+                background-image: none !important;
+            }
+            #toast-container > .toast-warning {
+                background-color: #ffc107 !important;
+                background-image: none !important;
+                color: #000 !important;
+            }
+            #toast-container > .toast-info {
+                background-color: #17a2b8 !important;
+                background-image: none !important;
+            }
+
+            /* Style cho nút đóng */
+            #toast-container .toast-close-button {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 0 5px;
+                color: #fff;
+                opacity: 0.8;
+                background: transparent;
+                border: 0;
+                font-size: 20px;
+                line-height: 20px;
+                cursor: pointer;
+            }
+            #toast-container .toast-close-button:hover {
+                opacity: 1;
+            }
+            #toast-container > .toast-warning .toast-close-button {
+                color: #000 !important;
+            }
+
+            /* Style cho thanh tiến trình */
+            #toast-container .toast-progress {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                height: 4px;
+                background-color: rgba(255, 255, 255, 0.3) !important;
+                opacity: 0.7;
+            }
+
+            /* Style cho icon */
+            #toast-container > div::before {
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                font-size: 1.2em;
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #fff;
+            }
+            #toast-container > .toast-success::before {
+                content: "\f00c";
+            }
+            #toast-container > .toast-error::before {
+                content: "\f00d";
+            }
+            #toast-container > .toast-warning::before {
+                content: "\f071";
+                color: #000;
+            }
+            #toast-container > .toast-info::before {
+                content: "\f05a";
+            }
+
+            /* Style cho nội dung */
+            #toast-container .toast-title {
+                font-weight: bold;
+                font-size: 1.1em;
+                margin-bottom: 5px;
+            }
+            #toast-container .toast-message {
+                font-size: 0.9em;
+                line-height: 1.4;
+                word-wrap: break-word;
+            }
+
+            /* Đảm bảo thông báo luôn hiển thị trên cùng */
+            #toast-container.toast-top-right {
+                top: 12px;
+                right: 12px;
+            }
+        `)
+        .appendTo('head');
+
+    // Get CSRF token from cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Setup AJAX to include CSRF token
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    // Xử lý xóa người dùng
+    $('.delete-user').click(function() {
+        var userId = $(this).data('user-id');
+        var userName = $(this).data('user-name');
+        $('#userName').text(userName);
+        $('#deleteForm').attr('action', '/admin-panel/users/' + userId + '/delete/');
+        $('#deleteModal').modal('show');
+    });
+
+    // Xử lý đặt lại mật khẩu
+    $('.reset-password').click(function() {
+        var userId = $(this).data('user-id');
+        var userName = $(this).data('user-name');
+        $('#resetPasswordUserName').text(userName);
+        $('#confirmResetPassword').data('user-id', userId);
+        $('#resetPasswordModal').modal('show');
+    });
+
+    let countdownInterval;
+    let modalTimeout;
+    let currentPassword = null;
+    let passwordUpdateInterval;
+    
+    function updatePasswordDisplay() {
+        if (currentPassword) {
+            const passwordElement = $('#newPassword');
+            // Tạo một bản sao của mật khẩu để tránh bị xóa
+            const passwordCopy = currentPassword;
+            
+            // Sử dụng requestAnimationFrame để đảm bảo hiển thị
+            requestAnimationFrame(function() {
+                passwordElement.text(passwordCopy);
+                // Force reflow
+                passwordElement[0].offsetHeight;
+            });
+        }
+    }
+    
+    function startCountdown() {
+        let timeLeft = 10;
+        $('#countdown').text(timeLeft);
+        
+        // Dọn dẹp các interval cũ
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (modalTimeout) clearTimeout(modalTimeout);
+        if (passwordUpdateInterval) clearInterval(passwordUpdateInterval);
+        
+        // Cập nhật mật khẩu ngay lập tức
+        updatePasswordDisplay();
+        
+        // Cập nhật mật khẩu mỗi 100ms
+        passwordUpdateInterval = setInterval(updatePasswordDisplay, 100);
+        
+        countdownInterval = setInterval(function() {
+            timeLeft--;
+            $('#countdown').text(timeLeft);
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                clearInterval(passwordUpdateInterval);
+                modalTimeout = setTimeout(function() {
+                    $('#newPasswordModal').modal('hide');
+                    currentPassword = null;
+                }, 2000);
+            }
+        }, 1000);
+    }
+
+    $('#confirmResetPassword').click(function() {
+        var userId = $(this).data('user-id');
+        var userName = $('#resetPasswordUserName').text();
+        
+        $.ajax({
+            url: '/admin-panel/users/' + userId + '/reset-password/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': csrftoken
+            },
+            success: function(response) {
+                if (response && response.new_password) {
+                    currentPassword = response.new_password;
+                    
+                    toastr.success('Đặt lại mật khẩu thành công', null, {
+                        timeOut: 3000,
+                        extendedTimeOut: 1000,
+                        closeButton: true,
+                        progressBar: true
+                    });
+
+                    $('#resetPasswordModal').modal('hide');
+                    setTimeout(function() {
+                        $('#newPasswordUserName').text(userName);
+                        
+                        // Đảm bảo mật khẩu được hiển thị trước khi mở modal
+                        updatePasswordDisplay();
+                        
+                        $('#newPasswordModal').modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        
+                        // Đợi modal hiển thị hoàn toàn
+                        $('#newPasswordModal').on('shown.bs.modal', function() {
+                            updatePasswordDisplay();
+                            startCountdown();
+                        });
+                        
+                        $('#newPasswordModal').modal('show');
+                    }, 500);
+                } else {
+                    toastr.error('Không nhận được mật khẩu mới từ server');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error response:', xhr.responseText);
+                toastr.error('Có lỗi xảy ra khi đặt lại mật khẩu: ' + (xhr.responseJSON?.message || 'Lỗi không xác định'), null, {
+                    timeOut: 5000,
+                    closeButton: true,
+                    progressBar: true
+                });
+            }
+        });
+    });
+
+    // Reset khi đóng modal
+    $('#newPasswordModal').on('hidden.bs.modal', function () {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (modalTimeout) clearTimeout(modalTimeout);
+        if (passwordUpdateInterval) clearInterval(passwordUpdateInterval);
+        currentPassword = null;
+    });
+
+    // Xử lý thay đổi trạng thái
+    $('.toggle-status').change(function() {
+        var userId = $(this).data('user-id');
+        var isChecked = $(this).prop('checked');
+        var userName = $(this).closest('tr').find('.fw-bold').text();
+        
+        $('#toggleStatusUserName').text(userName);
+        $('#toggleStatusAction').text(isChecked ? 'kích hoạt' : 'khóa');
+        $('#toggleStatusWarning').text(isChecked ? 
+            'Người dùng sẽ có thể đăng nhập vào hệ thống.' : 
+            'Người dùng sẽ không thể đăng nhập vào hệ thống.');
+        
+        $('#confirmToggleStatus').data('user-id', userId);
+        $('#toggleStatusModal').modal('show');
+        
+        // Reset checkbox về trạng thái cũ
+        $(this).prop('checked', !isChecked);
+    });
+
+    $('#confirmToggleStatus').click(function() {
+        var userId = $(this).data('user-id');
+        var checkbox = $('.toggle-status[data-user-id="' + userId + '"]');
+        var isChecked = !checkbox.prop('checked');
+        
+        $.ajax({
+            url: '/admin-panel/users/' + userId + '/toggle-status/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': csrftoken
+            },
+            success: function(response) {
+                $('#toggleStatusModal').modal('hide');
+                checkbox.prop('checked', isChecked);
+                toastr.success('Cập nhật trạng thái thành công', null, {
+                    timeOut: 3000,
+                    extendedTimeOut: 1000,
+                    closeButton: true,
+                    progressBar: true,
+                    tapToDismiss: false
+                });
+            },
+            error: function(xhr) {
+                toastr.error('Có lỗi xảy ra khi cập nhật trạng thái', null, {
+                    timeOut: 5000,
+                    closeButton: true,
+                    progressBar: true,
+                    tapToDismiss: false
+                });
+            }
+        });
+    });
+
+    // Tự động submit form khi thay đổi bộ lọc
+    $('#perPage, #sortBy, #roleFilter').change(function() {
+        $(this).closest('form').submit();
+    });
+});
+</script>
+{% endblock %}
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+templates/admin/user_list.html
+
+# VSCode Open Tabs
+.env
+requirements.txt
+acc
+templates/admin/base_site.html
+templates/includes/header.html
+main/migrations/0007_add_timestamps_to_category.py
+templates/includes/footer.html
+main/templatetags/custom_filters.py
+main/migrations/0008_add_payment_fields.py
+templates/main/category_list.html
+templates/main/category_detail.html
+main/migrations/0009_add_payment_fields_to_order.py
+templates/admin/dashboard.html
+templates/admin/order_list.html
+templates/admin/product_list.html
+templates/admin/category_list.html
+templates/admin/user_list.html
+templates/admin/user_edit.html
+admin_panel/forms.py
+admin_panel/urls.py
+templates/admin/sidebar.html
+templates/admin/profile.html
+templates/admin/user_profile.html
+templates/admin/header.html
+main/models.py
+templates/main/cart.html
+templates/includes/cart_offcanvas.html
+templates/main/product_detail.html
+templates/main/product_list.html
+templates/main/checkout.html
+main/views.py
+main/urls.py
+templates/main/order_detail.html
+templates/admin/order_detail.html
+templates/admin/order.html
+templates/admin/product.html
+main/forms.py
+templates/main/profile_edit.html
+main/templatetags/__init__.py
+static/admin/css/login.css
+static/admin/css/custom_login.css
+static/user/images/README.txt
+templates/main/profile.html
+main/signals.py
+templates/base.html
+main/migrations/0005_create_user_profiles.py
+static/user/js/main.js
+templates/main/login.html
+templates/main/register.html
+templates/main/product_search.html
+templates/main/order_history.html
+templates/404.html
+templates/500.html
+templates/403.html
+templates/maintenance.html
+static/robots.txt
+templates/main/order_list.html
+main/apps.py
+templates/includes/cart_offcanvas.html
+main/migrations/0002_category_parent.py
+
+# Current Time
+3/29/2025, 2:52:25 AM (Asia/Saigon, UTC+7:00)
+
+# Current Mode
+ACT MODE
+</environment_details>
+

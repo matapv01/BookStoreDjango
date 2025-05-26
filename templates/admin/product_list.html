@@ -1,0 +1,442 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Quản lý sản phẩm{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Quản lý sản phẩm</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Card styling */
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+    }
+
+    /* Table styling */
+    .table {
+        margin-bottom: 0;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        white-space: nowrap;
+        padding: 0.75rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* Remove all hover effects */
+    .table tbody tr,
+    .table tbody tr:hover,
+    .table tbody tr:focus,
+    .table tbody tr:active {
+        background-color: #fff !important;
+        transition: none !important;
+    }
+
+    /* Badge styling */
+    .badge {
+        padding: 0.5em 0.75em;
+        font-weight: 500;
+    }
+
+    /* Filter section */
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-section .form-control,
+    .filter-section .form-select {
+        height: 38px;
+    }
+
+    .filter-section .btn {
+        height: 38px;
+        padding: 0 1rem;
+    }
+
+    /* Product image */
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    /* Status badge colors */
+    .badge.bg-success { background-color: #28a745 !important; }
+    .badge.bg-warning { background-color: #ffc107 !important; }
+    .badge.bg-danger { background-color: #dc3545 !important; }
+    .badge.bg-info { background-color: #17a2b8 !important; }
+    .badge.bg-primary { background-color: #007bff !important; }
+
+    /* Pagination styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        color: #0d6efd;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* Remove hover effects from buttons */
+    .btn {
+        transition: none !important;
+    }
+    .btn:hover,
+    .btn:focus,
+    .btn:active {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Remove hover effects from form switches */
+    .form-check-input {
+        transition: none !important;
+    }
+    .form-check-input:hover,
+    .form-check-input:focus,
+    .form-check-input:active {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Sản phẩm</h1>
+            <p class="text-muted mb-0">Quản lý danh sách sản phẩm</p>
+        </div>
+        <a href="{% url 'admin_panel:add_product' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm sản phẩm
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Filter section -->
+            <div class="filter-section">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ search_query }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="category" class="form-select">
+                            <option value="">Tất cả danh mục</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select">
+                            <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Mới nhất</option>
+                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Cũ nhất</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Tên A-Z</option>
+                            <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>Tên Z-A</option>
+                            <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Giá tăng dần</option>
+                            <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Giá giảm dần</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="page_size" class="form-select">
+                            <option value="5" {% if page_size == 5 %}selected{% endif %}>5 dòng</option>
+                            <option value="10" {% if page_size == 10 %}selected{% endif %}>10 dòng</option>
+                            <option value="15" {% if page_size == 15 %}selected{% endif %}>15 dòng</option>
+                            <option value="20" {% if page_size == 20 %}selected{% endif %}>20 dòng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                        <a href="{% url 'admin_panel:products' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Products table -->
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Trạng thái</th>
+                            <th>Nổi bật</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                {% if product.image %}
+                                <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
+                                {% else %}
+                                <div class="product-image-placeholder">
+                                    <i class="fas fa-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-name">{{ product.name }}</div>
+                                    <div class="product-sku text-muted small">SKU: {{ product.sku }}</div>
+                                </div>
+                            </td>
+                            <td>{{ product.category.name }}</td>
+                            <td><strong>{{ product.price|floatformat:0|intcomma }}đ</strong></td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                           data-product-id="{{ product.id }}"
+                                           {% if product.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input featured-toggle" type="checkbox"
+                                           data-product-id="{{ product.id }}"
+                                           {% if product.featured %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'admin_panel:edit_product' product.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Sửa sản phẩm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" title="Xóa sản phẩm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                {% if search_query or category_id %}
+                                    Không tìm thấy sản phẩm nào phù hợp với bộ lọc
+                                {% else %}
+                                    Chưa có sản phẩm nào
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&page_size={{ page_size }}&sort={{ sort_by }}&category={{ category_id }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&category={{ category_id }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&sort={{ sort_by }}&category={{ category_id }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&category={{ category_id }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.paginator.num_pages }}&page_size={{ page_size }}&sort={{ sort_by }}&category={{ category_id }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            <!-- Pagination info -->
+            <div class="text-center text-muted mt-2">
+                Hiển thị {{ products.start_index }} đến {{ products.end_index }} của {{ products.paginator.count }} sản phẩm
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm "<span id="deleteProductName"></span>"?</p>
+                <p class="text-danger mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Handle delete modal
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var productId = button.data('product-id');
+        var productName = button.data('product-name');
+        var modal = $(this);
+        modal.find('#deleteProductName').text(productName);
+        modal.find('#deleteForm').attr('action', "{% url 'admin_panel:delete_product' 0 %}".replace('0', productId));
+    });
+
+    // Handle status toggle
+    $('.status-toggle').on('change', function() {
+        var productId = $(this).data('product-id');
+        var isActive = $(this).prop('checked');
+        var checkbox = $(this);
+
+        $.ajax({
+            url: "{% url 'admin_panel:update_product_status' 0 %}".replace('0', productId),
+            method: 'POST',
+            data: {
+                'is_active': isActive,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Cập nhật trạng thái thành công');
+                } else {
+                    checkbox.prop('checked', !isActive);
+                    toastr.error(response.message || 'Có lỗi xảy ra');
+                }
+            },
+            error: function() {
+                checkbox.prop('checked', !isActive);
+                toastr.error('Có lỗi xảy ra khi cập nhật trạng thái');
+            }
+        });
+    });
+
+    // Handle featured toggle
+    $('.featured-toggle').on('change', function() {
+        var productId = $(this).data('product-id');
+        var isFeatured = $(this).prop('checked');
+        var checkbox = $(this);
+
+        $.ajax({
+            url: "{% url 'admin_panel:update_product_featured' 0 %}".replace('0', productId),
+            method: 'POST',
+            data: {
+                'featured': isFeatured,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Cập nhật trạng thái nổi bật thành công');
+                } else {
+                    checkbox.prop('checked', !isFeatured);
+                    toastr.error(response.message || 'Có lỗi xảy ra');
+                }
+            },
+            error: function() {
+                checkbox.prop('checked', !isFeatured);
+                toastr.error('Có lỗi xảy ra khi cập nhật trạng thái nổi bật');
+            }
+        });
+    });
+
+    // Auto submit form when select changes
+    $('select[name="category"], select[name="sort"], select[name="page_size"]').on('change', function() {
+        $(this).closest('form').submit();
+    });
+});
+</script>
+{% endblock %}

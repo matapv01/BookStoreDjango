@@ -1,0 +1,77 @@
+{% load static %}
+<nav class="sidebar"> {# Add nav wrapper with sidebar class #}
+    {# Removed sidebar-header and sidebar-content divs, padding handled by nav-link styles #}
+    <ul class="nav flex-column pt-3"> {# Add some top padding to the list itself #}
+        {# Optional: Add a logo/brand section here if desired, styled separately #}
+        <li class="nav-item mb-1"> {# Reduced margin-bottom slightly #}
+            <a href="{% url 'admin_panel:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt fa-fw"></i> {# Removed me-2, gap handled by nav-link style #}
+                Trang chính
+            </a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:products' %}" class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-book fa-fw"></i>
+                Sản phẩm
+            </a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:categories' %}" class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-th-list fa-fw"></i>
+                Danh mục
+            </a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:orders' %}" class="nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-shopping-cart fa-fw"></i>
+                Đơn hàng
+            </a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:users' %}" class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-users fa-fw"></i>
+                Người dùng
+            </a>
+        </li>
+
+        {# Optional: Add a divider #}
+        <hr class="mx-3 my-2">
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:settings' %}" 
+               class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
+               {% if not user.is_superuser %}
+               onclick="event.preventDefault(); Swal.fire({
+                   title: 'Không có quyền truy cập',
+                   text: 'Chỉ quản trị viên mới có quyền truy cập vào trang cài đặt hệ thống.',
+                   icon: 'error',
+                   confirmButtonText: 'Đóng',
+                   confirmButtonColor: '#dc3545'
+               });"
+               {% endif %}>
+                <i class="fas fa-cog fa-fw"></i>
+                Cài đặt hệ thống
+            </a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{% url 'admin_panel:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="fas fa-user-cog fa-fw"></i>
+                Hồ sơ của tôi
+            </a>
+        </li>
+
+        {# Logout at the bottom #}
+        <li class="nav-item mt-auto mb-2 mx-3"> {# Push to bottom if sidebar has fixed height and flex column #}
+             <hr>
+             <a href="{% url 'admin_panel:logout' %}" class="nav-link text-danger">
+                 <i class="fas fa-sign-out-alt fa-fw"></i>
+                 Đăng xuất
+             </a>
+         </li>
+    </ul>
+</nav>

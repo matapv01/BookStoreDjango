@@ -1,0 +1,594 @@
+{
+	"info": {
+		"name": "BookStore Admin API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Gọi request lấy CSRF token",
+									"pm.sendRequest({",
+									"    url: pm.environment.get(\"base_url\") + \"/admin_panel/login/\",",
+									"    method: \"GET\",",
+									"    header: {",
+									"        'Accept': 'text/html'",
+									"    }",
+									"}, function (err, res) {",
+									"    if (!err) {",
+									"        // Tìm CSRF token trong HTML",
+									"        var match = res.text().match(/<input[^>]+name=\"csrfmiddlewaretoken\"[^>]+value=\"([^\"]+)\"/);",
+									"        if (match && match[1]) {",
+									"            pm.environment.set(\"csrf_token\", match[1]);",
+									"            console.log(\"CSRF Token set: \" + match[1]);",
+									"        } else {",
+									"            console.log(\"Could not find CSRF token\");",
+									"        }",
+									"    } else {",
+									"        console.log(\"Error getting CSRF token: \" + err);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									"pm.test(\"Login successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "csrfmiddlewaretoken",
+									"value": "{{csrf_token}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/login/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "login", ""]
+						}
+					}
+				},
+				{
+					"name": "Admin Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-CSRFToken",
+								"value": "{{csrf_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/logout/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "logout", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/dashboard/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "dashboard", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/products/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "products", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"price\": 100000,\n    \"stock\": 10,\n    \"category\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/products/add/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "products", "add", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\",\n    \"price\": 150000,\n    \"stock\": 50,\n    \"is_active\": true,\n    \"is_featured\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/products/1/edit/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "products", "1", "edit", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/products/1/delete/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "products", "1", "delete", ""]
+						}
+					}
+				},
+				{
+					"name": "Toggle Product Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/products/1/toggle-status/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "products", "1", "toggle-status", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/categories/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "categories", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Category\",\n    \"description\": \"Category description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/categories/add/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "categories", "add", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Category Name\",\n    \"description\": \"Updated category description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/categories/1/edit/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "categories", "1", "edit", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/categories/1/delete/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "categories", "1", "delete", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "List Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/orders/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "orders", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Order Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/orders/1/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "orders", "1", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"DELIVERED\",\n    \"payment_status\": \"Đã thanh toán\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/orders/1/update-status/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "orders", "1", "update-status", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/users/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "users", ""]
+						}
+					}
+				},
+				{
+					"name": "Add User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"newuser\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\",\n    \"first_name\": \"New\",\n    \"last_name\": \"User\",\n    \"is_staff\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/users/add/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "users", "add", ""]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"updated@example.com\",\n    \"first_name\": \"Updated\",\n    \"last_name\": \"Name\",\n    \"is_active\": true,\n    \"phone_number\": \"0987654321\",\n    \"address\": \"Updated Address\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin_panel/users/1/edit/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "users", "1", "edit", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRF-Exempt",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin_panel/users/1/delete/",
+							"host": ["{{base_url}}"],
+							"path": ["admin_panel", "users", "1", "delete", ""]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Kiểm tra response status",
+					"pm.test(\"Status code is 200\", function () {",
+					"    pm.response.to.have.status(200);",
+					"});",
+					"",
+					"// Kiểm tra response type",
+					"pm.test(\"Response is JSON\", function () {",
+					"    pm.response.to.be.json;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+} 

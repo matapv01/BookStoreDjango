@@ -1,0 +1,121 @@
+{% extends 'admin/base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Trang chính{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard_new.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Page Title/Breadcrumb -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Trang chính</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item active" aria-current="page">Trang chính</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats-row">
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-icon primary">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="dashboard-stat-value">{{ total_orders|default:0|intcomma }}</div>
+            <div class="dashboard-stat-label">Tổng đơn hàng</div>
+            <div class="dashboard-stat-change text-success">
+                {{ monthly_orders|default:0|intcomma }} đơn hàng tháng này
+            </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-icon success">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="dashboard-stat-value">{{ total_sales|default:0|floatformat:0|intcomma }}đ</div>
+            <div class="dashboard-stat-label">Tổng doanh thu</div>
+            <div class="dashboard-stat-change text-success">
+                {{ monthly_sales|default:0|floatformat:0|intcomma }}đ tháng này
+            </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-icon info">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="dashboard-stat-value">{{ total_users|default:0|intcomma }}</div>
+            <div class="dashboard-stat-label">Tổng người dùng</div>
+            <div class="dashboard-stat-change text-info">
+                Trong đó {{ admin_users|default:0 }} tài khoản quản trị
+            </div>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="dashboard-stat-icon warning">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="dashboard-stat-value">{{ total_products|default:0|intcomma }}</div>
+            <div class="dashboard-stat-label">Tổng sản phẩm</div>
+            <div class="dashboard-stat-change text-transparent">&nbsp;</div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Đơn hàng gần đây</h5>
+            <a href="{% url 'admin_panel:orders' %}" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đặt</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                            <td>{{ order.total_amount|floatformat:0|intcomma }}đ</td>
+                            <td>
+                                <span class="dashboard-badge {% if order.status == 'PENDING' %}pending
+                                    {% elif order.status == 'PROCESSING' %}processing
+                                    {% elif order.status == 'SHIPPED' %}info
+                                    {% elif order.status == 'DELIVERED' %}completed
+                                    {% elif order.status == 'CANCELLED' %}cancelled
+                                    {% else %}secondary{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">Không có đơn hàng nào</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

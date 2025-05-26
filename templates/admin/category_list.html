@@ -1,0 +1,349 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Quản lý danh mục{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Quản lý danh mục</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Card styling */
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+    }
+
+    /* Table styling */
+    .table {
+        margin-bottom: 0;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        white-space: nowrap;
+        padding: 0.75rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* Remove all hover effects */
+    .table tbody tr,
+    .table tbody tr:hover,
+    .table tbody tr:focus,
+    .table tbody tr:active {
+        background-color: #fff !important;
+        transition: none !important;
+    }
+
+    /* Badge styling */
+    .badge {
+        padding: 0.5em 0.75em;
+        font-weight: 500;
+    }
+
+    /* Filter section */
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-section .form-control,
+    .filter-section .form-select {
+        height: 38px;
+    }
+
+    .filter-section .btn {
+        height: 38px;
+        padding: 0 1rem;
+    }
+
+    /* Category image */
+    .category-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    /* Status badge colors */
+    .badge.bg-success { background-color: #28a745 !important; }
+    .badge.bg-warning { background-color: #ffc107 !important; }
+    .badge.bg-danger { background-color: #dc3545 !important; }
+    .badge.bg-info { background-color: #17a2b8 !important; }
+    .badge.bg-primary { background-color: #007bff !important; }
+
+    /* Pagination styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        color: #0d6efd;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+
+    /* Remove hover effects from buttons */
+    .btn {
+        transition: none !important;
+    }
+    .btn:hover,
+    .btn:focus,
+    .btn:active {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Danh mục</h1>
+            <p class="text-muted mb-0">Quản lý danh sách danh mục</p>
+        </div>
+        <a href="{% url 'admin_panel:add_category' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm danh mục
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Filter section -->
+            <div class="filter-section">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ search_query }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select">
+                            <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Mới nhất</option>
+                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Cũ nhất</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Tên A-Z</option>
+                            <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>Tên Z-A</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="page_size" class="form-select">
+                            <option value="5" {% if page_size == 5 %}selected{% endif %}>5 dòng</option>
+                            <option value="10" {% if page_size == 10 %}selected{% endif %}>10 dòng</option>
+                            <option value="15" {% if page_size == 15 %}selected{% endif %}>15 dòng</option>
+                            <option value="20" {% if page_size == 20 %}selected{% endif %}>20 dòng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                        <a href="{% url 'admin_panel:categories' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Categories table -->
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên danh mục</th>
+                            <th>Mô tả</th>
+                            <th>Số sản phẩm</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>
+                                {% if category.image %}
+                                <img src="{{ category.image }}" alt="{{ category.name }}" class="category-image">
+                                {% else %}
+                                <div class="category-image-placeholder">
+                                    <i class="fas fa-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="category-info">
+                                    <div class="category-name">{{ category.name }}</div>
+                                    <div class="category-slug text-muted small">{{ category.slug }}</div>
+                                </div>
+                            </td>
+                            <td>{{ category.description|truncatechars:100 }}</td>
+                            <td>
+                                <span class="text-muted">{{ category.product_set.count }}</span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'admin_panel:edit_category' category.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Sửa danh mục">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" title="Xóa danh mục">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                {% if search_query %}
+                                    Không tìm thấy danh mục nào phù hợp với bộ lọc
+                                {% else %}
+                                    Chưa có danh mục nào
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if categories.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if categories.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&page_size={{ page_size }}&sort={{ sort_by }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ categories.previous_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in categories.paginator.page_range %}
+                        {% if categories.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&sort={{ sort_by }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if categories.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ categories.next_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ categories.paginator.num_pages }}&page_size={{ page_size }}&sort={{ sort_by }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            <!-- Pagination info -->
+            <div class="text-center text-muted mt-2">
+                Hiển thị {{ categories.start_index }} đến {{ categories.end_index }} của {{ categories.paginator.count }} danh mục
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa danh mục "<span id="deleteCategoryName"></span>"?</p>
+                <p class="text-danger mb-0">Lưu ý: Hành động này không thể hoàn tác và sẽ xóa tất cả sản phẩm trong danh mục này.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Handle delete modal
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var categoryId = button.data('category-id');
+        var categoryName = button.data('category-name');
+        var modal = $(this);
+        modal.find('#deleteCategoryName').text(categoryName);
+        modal.find('#deleteForm').attr('action', "{% url 'admin_panel:delete_category' 0 %}".replace('0', categoryId));
+    });
+
+    // Auto submit form when select changes
+    $('select[name="sort"], select[name="page_size"]').on('change', function() {
+        $(this).closest('form').submit();
+    });
+});
+</script>
+{% endblock %}

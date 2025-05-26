@@ -1,0 +1,505 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Bảng điều khiển</a></li>
+            <li class="breadcrumb-item active">Quản lý đơn hàng</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+<style>
+    /* Reset và loại bỏ các hiệu ứng */
+    .card {
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: none !important;
+    }
+
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    /* Table styling */
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-top: none;
+        padding: 1rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1rem;
+    }
+    
+   /* Status badges */
+   .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+       font-weight: 500;
+        display: inline-block;
+        text-align: center;
+        transition: none !important;
+   }
+   
+   .status-badge i {
+        margin-right: 0.5rem;
+    }
+
+    .badge-dang-cho { background-color: #FFF3CD; color: #856404; }
+    .badge-dang-xu-ly { background-color: #D1ECF1; color: #0C5460; }
+    .badge-dang-giao { background-color: #CCE5FF; color: #004085; }
+    .badge-da-giao { background-color: #D4EDDA; color: #155724; }
+    .badge-da-huy { background-color: #F8D7DA; color: #721C24; }
+    
+    /* Action buttons */
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.25rem;
+        margin: 0 0.25rem;
+        transition: none !important;
+    }
+
+    .action-btn:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .action-btn i {
+        font-size: 0.875rem;
+    }
+    
+    /* Customer info */
+    .customer-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .customer-email {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    /* Filter section */
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+    }
+
+    .filter-section .form-control,
+    .filter-section .btn {
+        height: 38px;
+    }
+
+    .filter-section .date-range {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .filter-section .date-input {
+        width: 140px;
+    }
+
+    /* Disable AOS animations */
+    [data-aos] {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+    }
+
+    /* Table row hover */
+    .table tbody tr {
+        transition: none !important;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa !important;
+        transform: none !important;
+    }
+
+    /* Style cho tùy chọn hiển thị */
+    .display-options {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+    }
+
+    .display-options .form-label {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .display-options .form-select-sm {
+        font-size: 0.875rem;
+        padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+        height: auto;
+    }
+
+    .display-options .input-group-sm {
+        height: 31px;
+    }
+
+    .display-options .input-group-sm .form-control {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .display-options .input-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .display-options .input-group-sm .btn i {
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        .display-options .row {
+            flex-direction: column;
+        }
+        
+        .display-options .col-md-8,
+        .display-options .col-md-4 {
+            width: 100%;
+        }
+        
+        .display-options .input-group-sm {
+            max-width: 100% !important;
+        }
+    }
+
+    /* Style cho phân trang */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination .page-link {
+        padding: 0.375rem 0.75rem;
+        color: #0d6efd;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+    .pagination-info {
+        text-align: center;
+        margin-top: 0.5rem;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    /* DataTables custom styling */
+    .dataTables_wrapper .dataTables_length select {
+        width: auto;
+        display: inline-block;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        display: none; /* Hide default search box */
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        padding-top: 0.85em;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 0.25em;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        margin-left: 0.25rem;
+        border-radius: 0.25rem;
+        border: 1px solid #dee2e6;
+        background-color: #fff;
+        color: #0d6efd !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background-color: #e9ecef !important;
+        border-color: #dee2e6;
+        color: #0a58ca !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd;
+        color: #fff !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+        color: #6c757d !important;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Đơn hàng</h1>
+            <p class="text-muted mb-0">Quản lý danh sách đơn hàng</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Filter section -->
+            <div class="filter-section">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ search_query }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="">Tất cả trạng thái</option>
+                            {% for status_code, status_name in order_status_choices %}
+                            <option value="{{ status_code|lower }}" {% if status == status_code|lower %}selected{% endif %}>
+                                {{ status_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select">
+                            <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Mới nhất</option>
+                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Cũ nhất</option>
+                            <option value="total_amount" {% if sort_by == 'total_amount' %}selected{% endif %}>Giá trị tăng dần</option>
+                            <option value="-total_amount" {% if sort_by == '-total_amount' %}selected{% endif %}>Giá trị giảm dần</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="page_size" class="form-select">
+                            <option value="5" {% if page_size == 5 %}selected{% endif %}>5 dòng</option>
+                            <option value="10" {% if page_size == 10 %}selected{% endif %}>10 dòng</option>
+                            <option value="15" {% if page_size == 15 %}selected{% endif %}>15 dòng</option>
+                            <option value="20" {% if page_size == 20 %}selected{% endif %}>20 dòng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                        <a href="{% url 'admin_panel:orders' %}" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Orders table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thanh toán</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">{{ order.user.get_full_name|default:order.user.username }}</div>
+                                    <div class="customer-email text-muted small">{{ order.email|default:order.user.email }}</div>
+                                </div>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td><strong>{{ order.total_amount|floatformat:0|intcomma }}đ</strong></td>
+                            <td>
+                                <span class="badge bg-{% if order.status == 'DELIVERED' %}success{% elif order.status == 'CANCELLED' %}danger{% elif order.status == 'PROCESSING' %}info{% elif order.status == 'SHIPPED' %}primary{% else %}warning{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if order.payment_status == 'PAID' %}success{% elif order.payment_status == 'PENDING' %}warning{% else %}danger{% endif %}">
+                                    {{ order.get_payment_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if order.status == 'PENDING' %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal" data-order-id="{{ order.id }}" data-order-number="{{ order.id }}" title="Hủy đơn hàng">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                {% if search_query or status %}
+                                    Không tìm thấy đơn hàng nào phù hợp với bộ lọc
+                                {% else %}
+                                    Chưa có đơn hàng nào
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if orders.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if orders.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&page_size={{ page_size }}&sort={{ sort_by }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.previous_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in orders.paginator.page_range %}
+                        {% if orders.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&sort={{ sort_by }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if orders.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.next_page_number }}&page_size={{ page_size }}&sort={{ sort_by }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.paginator.num_pages }}&page_size={{ page_size }}&sort={{ sort_by }}&status={{ status }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            <!-- Pagination info -->
+            <div class="text-center text-muted mt-2">
+                Hiển thị {{ orders.start_index }} đến {{ orders.end_index }} của {{ orders.paginator.count }} đơn hàng
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy đơn hàng #<span id="cancelOrderNumber"></span>?</p>
+                <p class="text-danger mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="cancelForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                    <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Handle cancel modal
+    $('#cancelModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var orderId = button.data('order-id');
+        var orderNumber = button.data('order-number');
+        var modal = $(this);
+        modal.find('#cancelOrderId').val(orderId);
+        modal.find('#cancelOrderNumber').text(orderNumber);
+        modal.find('#cancelForm').attr('action', "{% url 'admin_panel:update_order_status' 0 %}".replace('0', orderId));
+    });
+
+    // Auto submit form when select changes
+    $('select[name="status"], select[name="sort"], select[name="page_size"]').on('change', function() {
+        $(this).closest('form').submit();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Đăng ký - {{ system_settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .auth-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/pattern.png" %}') repeat;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    .auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 1000px;
+        padding: 2.5rem;
+        position: relative;
+        z-index: 1;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .auth-header h2 {
+        color: var(--primary-color);
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+    .auth-header p {
+        color: #666;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+    .auth-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .auth-form label {
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        display: block;
+    }
+    .auth-form .form-control {
+        border-radius: 12px;
+        padding: 0.875rem 1.25rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        background: #f8f9fa;
+        width: 100%;
+    }
+    .auth-form .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.15);
+        background: #fff;
+    }
+    .btn-auth {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        border: none;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1rem;
+    }
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(var(--primary-color-rgb), 0.3);
+    }
+    .auth-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    .auth-link:hover {
+        color: var(--primary-hover);
+        text-decoration: none;
+    }
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    .auth-footer p {
+        color: #666;
+        font-size: 1rem;
+    }
+    .password-requirements {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        border: 1px solid #e9ecef;
+    }
+    .password-requirements h6 {
+        color: #444;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .password-requirements ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .password-requirements li {
+        color: #666;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    .password-requirements li:before {
+        content: '•';
+        color: var(--primary-color);
+        position: absolute;
+        left: 0.5rem;
+    }
+    .password-strength {
+        height: 4px;
+        background: #e9ecef;
+        margin-top: 0.5rem;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s;
+    }
+
+    .requirement {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        color: #6c757d;
+        font-size: 0.875rem;
+        transition: all 0.3s;
+    }
+
+    .requirement i {
+        width: 20px;
+        margin-right: 0.5rem;
+        font-size: 12px;
+    }
+
+    .requirement.met {
+        color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="auth-card" data-aos="fade-up">
+                    <div class="auth-header">
+                        <h2><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản</h2>
+                        <p>Tham gia cùng chúng tôi ngay hôm nay!</p>
+                    </div>
+                    
+                    <form method="post" class="auth-form">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Vui lòng sửa các lỗi sau:
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_username">Tên đăng nhập</label>
+                                    <input type="text" name="username" id="id_username" class="form-control" required>
+                                    <small class="text-muted">Tên đăng nhập phải chứa chữ cái, số và ký tự @/./+/-/_</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_email">Email</label>
+                                    <input type="email" name="email" id="id_email" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_first_name">Tên</label>
+                                    <input type="text" name="first_name" id="id_first_name" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_last_name">Họ</label>
+                                    <input type="text" name="last_name" id="id_last_name" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_password1">Mật khẩu</label>
+                                    <input type="password" name="password1" id="id_password1" class="form-control" required>
+                                    <div class="password-strength">
+                                        <div class="password-strength-bar"></div>
+                                    </div>
+                                    <div class="password-requirements">
+                                        <div class="requirement" data-requirement="length">
+                                            <i class="fas fa-circle"></i>Ít nhất 8 ký tự
+                                        </div>
+                                        <div class="requirement" data-requirement="number">
+                                            <i class="fas fa-circle"></i>Chứa ít nhất 1 số
+                                        </div>
+                                        <div class="requirement" data-requirement="uppercase">
+                                            <i class="fas fa-circle"></i>Chứa ít nhất 1 chữ hoa
+                                        </div>
+                                        <div class="requirement" data-requirement="special">
+                                            <i class="fas fa-circle"></i>Chứa ít nhất 1 ký tự đặc biệt
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_password2">Xác nhận mật khẩu</label>
+                                    <input type="password" name="password2" id="id_password2" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn-auth">
+                                    <i class="fas fa-user-plus me-2"></i>Đăng ký
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Đã có tài khoản? <a href="{% url 'main:login' %}" class="auth-link">Đăng nhập ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('id_password1');
+    const strengthBar = document.querySelector('.password-strength-bar');
+    const requirements = document.querySelectorAll('.requirement');
+
+    function updatePasswordStrength(value) {
+        let strength = 0;
+        const checks = {
+            length: value.length >= 8,
+            number: /[0-9]/.test(value),
+            uppercase: /[A-Z]/.test(value),
+            special: /[^A-Za-z0-9]/.test(value)
+        };
+
+        Object.entries(checks).forEach(([key, valid]) => {
+            const req = document.querySelector(`[data-requirement="${key}"]`);
+            if (valid) {
+                req.classList.add('met');
+                req.querySelector('i').className = 'fas fa-check-circle';
+                strength += 25;
+            } else {
+                req.classList.remove('met');
+                req.querySelector('i').className = 'fas fa-circle';
+            }
+        });
+
+        strengthBar.style.width = `${strength}%`;
+        if (strength <= 25) {
+            strengthBar.style.backgroundColor = '#dc3545';
+        } else if (strength <= 50) {
+            strengthBar.style.backgroundColor = '#ffc107';
+        } else if (strength <= 75) {
+            strengthBar.style.backgroundColor = '#17a2b8';
+        } else {
+            strengthBar.style.backgroundColor = '#28a745';
+        }
+    }
+
+    password.addEventListener('input', function() {
+        updatePasswordStrength(this.value);
+    });
+
+    // Auto-hide alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

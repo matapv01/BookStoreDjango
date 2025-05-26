@@ -1,0 +1,467 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Chi tiết đơn hàng #{{ order.order_number }} - {{ settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Reset và style cơ bản */
+    .card {
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+        background: #fff;
+    }
+    
+    .card-header {
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Style cho bảng sản phẩm */
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .product-table th {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+        background: #fff;
+    }
+    
+    .product-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+        background: #fff;
+    }
+    
+    .product-table th.text-end,
+    .product-table td.text-end {
+        text-align: right;
+    }
+    
+    .product-table th.text-center,
+    .product-table td.text-center {
+        text-align: center;
+    }
+    
+    .product-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        color: #333;
+    }
+    
+    .product-sku {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .product-category {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border: 1px solid #dee2e6;
+        padding: 4px;
+        background: #fff;
+    }
+
+    .product-image-placeholder {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dee2e6;
+        background: #fff;
+    }
+
+    /* Style cho số lượng và thông báo */
+    .badge {
+        background: #fff;
+        color: #333;
+        border: 1px solid #dee2e6;
+        padding: 0.5em 0.75em;
+        font-weight: normal;
+    }
+
+    .badge.bg-primary {
+        background: #fff !important;
+        color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .badge.bg-danger {
+        background: #fff !important;
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .badge.bg-warning {
+        background: #fff !important;
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .badge.bg-success {
+        background: #fff !important;
+        color: #198754;
+        border-color: #198754;
+    }
+
+    .badge.bg-info {
+        background: #fff !important;
+        color: #0dcaf0;
+        border-color: #0dcaf0;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Bảng điều khiển</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'admin_panel:orders' %}">Đơn hàng</a></li>
+            <li class="breadcrumb-item active">Chi tiết đơn hàng #{{ order.order_number }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Chi tiết đơn hàng #{{ order.order_number }}</h4>
+                <div>
+                    {% if order.status != 'CANCELLED' and order.status != 'DELIVERED' %}
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <i class="fas fa-times me-2"></i>Hủy đơn hàng
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Thông tin đơn hàng và thanh toán -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Thông tin đơn hàng</h5>
+                    <p><strong>Trạng thái:</strong> 
+                        <span class="badge bg-{% if order.status == 'DELIVERED' %}success{% elif order.status == 'CANCELLED' %}danger{% elif order.status == 'PROCESSING' %}info{% elif order.status == 'SHIPPED' %}primary{% else %}warning{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                        {% if order.status != 'CANCELLED' and order.status != 'DELIVERED' %}
+                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#statusModal">
+                            <i class="fas fa-edit"></i> Cập nhật
+                        </button>
+                        {% endif %}
+                    </p>
+                    <p><strong>Ngày đặt hàng:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Cập nhật lần cuối:</strong> {{ order.updated_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Thông tin thanh toán</h5>
+                    <p><strong>Trạng thái thanh toán:</strong>
+                        <span class="badge bg-{% if order.payment_status == 'Đã thanh toán' %}success{% elif order.payment_status == 'Đang chờ thanh toán' %}warning{% else %}danger{% endif %}">
+                            {{ order.payment_status }}
+                        </span>
+                        {% if order.status != 'CANCELLED' %}
+                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                            <i class="fas fa-edit"></i> Cập nhật
+                        </button>
+                        {% endif %}
+                    </p>
+                    <p><strong>Phương thức thanh toán:</strong> {{ order.payment_method }}</p>
+                    {% if order.transaction_id %}
+                    <p><strong>Mã giao dịch:</strong> {{ order.transaction_id }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Thông tin khách hàng -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Thông tin khách hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Tên:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
+                            <p><strong>Email:</strong> {{ order.email }}</p>
+                            <p><strong>Số điện thoại:</strong> {{ order.phone_number }}</p>
+                            <p class="mb-0"><strong>Địa chỉ:</strong> {{ order.shipping_address }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sản phẩm đã đặt</h5>
+                </div>
+                <div class="card-body">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">Ảnh</th>
+                                <th style="width: 40%">Sản phẩm</th>
+                                <th style="width: 20%" class="text-end">Đơn giá</th>
+                                <th style="width: 15%" class="text-center">Số lượng</th>
+                                <th style="width: 15%" class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.orderitem_set.all %}
+                            <tr>
+                                <td>
+                                    {% if item.product.image %}
+                                    <div style="width: 80px; height: 80px; border: 1px solid #dee2e6; padding: 4px; background: #fff;">
+                                        <img src="{{ item.product.image }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; background: #fff;\'><i class=\'fas fa-image text-muted\'></i></div>';">
+                                    </div>
+                                    {% else %}
+                                    <div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; background: #fff;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500; margin-bottom: 0.25rem; color: #333;">{{ item.product.name }}</div>
+                                    <div style="color: #6c757d; font-size: 0.875rem; margin-bottom: 0.25rem;">SKU: {{ item.product.id }}</div>
+                                    {% with category=item.product.category %}
+                                    {% if category %}
+                                    <div style="color: #6c757d; font-size: 0.875rem;">Danh mục: {{ category.name }}</div>
+                                    {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td class="text-end">{{ item.price|floatformat:0|intcomma }}đ</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="text-end">{{ item.total|floatformat:0|intcomma }}đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Tổng cộng:</strong></td>
+                                <td class="text-end"><strong>{{ order.total_amount|floatformat:0|intcomma }}đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'admin_panel:orders' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật trạng thái đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="statusForm" method="post" action="{% url 'admin_panel:update_order_status' order.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select name="status" id="status" class="form-select">
+                            {% for status_code, status_name in order_status_choices %}
+                            <option value="{{ status_code }}" {% if order.status == status_code %}selected{% endif %}>
+                                {{ status_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Status Update Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật trạng thái thanh toán</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="paymentForm" method="post" action="{% url 'admin_panel:update_payment_status' order.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="payment_status" class="form-label">Trạng thái thanh toán</label>
+                        <select name="payment_status" id="payment_status" class="form-select">
+                            <option value="Đang chờ thanh toán" {% if order.payment_status == 'Đang chờ thanh toán' %}selected{% endif %}>Đang chờ thanh toán</option>
+                            <option value="Đã thanh toán" {% if order.payment_status == 'Đã thanh toán' %}selected{% endif %}>Đã thanh toán</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy đơn hàng #{{ order.order_number }}?</p>
+                <p class="text-danger mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="cancelForm" method="post" action="{% url 'admin_panel:update_order_status' order.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                    <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Configure toastr
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};
+
+$(document).ready(function() {
+    // Handle status form submission
+    $('#statusForm').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        console.log('Submitting status form to:', form.attr('action'));
+        console.log('Form data:', form.serialize());
+        
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                console.log('Status update response:', response);
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    toastr.error(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Status update error:', {xhr, status, error});
+                toastr.error('Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại!');
+            }
+        });
+    });
+
+    // Handle payment form submission
+    $('#paymentForm').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái thanh toán');
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi cập nhật trạng thái thanh toán. Vui lòng thử lại!');
+            }
+        });
+    });
+
+    // Handle cancel form submission
+    $('#cancelForm').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        console.log('Submitting cancel form to:', form.attr('action'));
+        console.log('Form data:', form.serialize());
+        
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                console.log('Cancel response:', response);
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    toastr.error(response.message || 'Có lỗi xảy ra khi hủy đơn hàng');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Cancel error:', {xhr, status, error});
+                toastr.error('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại!');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

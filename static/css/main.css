@@ -1,0 +1,340 @@
+/* Main CSS for BookStore */
+:root {
+  --primary: #2ecc71;
+  --primary-dark: #27ae60;
+  --primary-hover: #27ae60;
+  --primary-color-rgb: 46, 204, 113;
+  --secondary: #e74c3c;
+  --dark: #2c3e50;
+  --light: #ecf0f1;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --gray: #95a5a6;
+}
+
+body {
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+/* Header */
+.site-header {
+  background: linear-gradient(to right, var(--dark), var(--primary-dark));
+  padding: 1rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.site-header .navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.navbar {
+  padding: 0.5rem 1rem;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/static/img/library-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 5rem 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  margin-bottom: 2rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 20px rgba(0,0,0,0.1);
+}
+
+.card-img-top {
+  height: 240px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  color: #666;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 5px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary,
+.btn-success,
+.btn-auth {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-auth:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: white;
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-success:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.btn-link,
+.btn-link-success {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.btn-link:hover,
+.btn-link-success:hover {
+  color: var(--primary-dark);
+}
+
+/* Text colors */
+.text-primary,
+.text-success {
+  color: var(--primary) !important;
+}
+
+/* Background colors */
+.bg-primary,
+.bg-success {
+  background-color: var(--primary) !important;
+}
+
+/* Alert Messages */
+.alert-primary,
+.alert-success {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Pagination */
+.pagination .page-item .page-link {
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Auth specific styles */
+.auth-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.auth-link {
+  color: var(--primary);
+}
+
+.auth-link:hover {
+  color: var(--primary-dark);
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+  color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.stat-card p {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  background-color: var(--dark);
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+
+.admin-sidebar .nav-link {
+  color: rgba(255,255,255,0.8);
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+.admin-sidebar .nav-link i {
+  margin-right: 0.5rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Tables */
+.table {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.table thead th {
+  background-color: var(--dark);
+  color: white;
+  border: none;
+  padding: 1rem;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* Footer */
+.site-footer {
+  background-color: var(--dark);
+  color: white;
+  padding: 3rem 0;
+  margin-top: 3rem;
+}
+
+.site-footer h5 {
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.site-footer a {
+  color: rgba(255,255,255,0.8);
+  transition: color 0.3s;
+}
+
+.site-footer a:hover {
+  color: white;
+  text-decoration: none;
+}
+
+/* Social Icons */
+.social-icons a {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+  text-align: center;
+  line-height: 36px;
+  margin-right: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.social-icons a:hover {
+  background-color: var(--primary);
+}
+
+/* Product List */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+/* Form Styling */
+.form-control {
+  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+  border-color: var(--primary);
+}
+
+/* Alert Messages */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 1rem 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  
+  .admin-sidebar {
+    min-height: auto;
+  }
+}

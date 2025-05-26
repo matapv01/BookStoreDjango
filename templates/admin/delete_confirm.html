@@ -1,0 +1,134 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Delete {{ object|title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Delete Confirmation</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+                    {% if object|lower == 'product' %}
+                        <li class="breadcrumb-item"><a href="{% url 'admin_panel:products' %}">Products</a></li>
+                    {% elif object|lower == 'category' %}
+                        <li class="breadcrumb-item"><a href="{% url 'admin_panel:categories' %}">Categories</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">Delete {{ object|title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Warning
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Are you sure you want to delete "<strong>{{ object }}</strong>"?
+                        {% if related_items %}
+                            This will also delete:
+                            <ul>
+                                {% for item in related_items %}
+                                    <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        This action cannot be undone.
+                    </p>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                            {% if object|lower == 'product' %}
+                                <a href="{% url 'admin_panel:products' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                            {% elif object|lower == 'category' %}
+                                <a href="{% url 'admin_panel:categories' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                            {% else %}
+                                <a href="javascript:history.back()" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Item Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if object.image %}
+                        <img src="{{ object.image.url }}" alt="{{ object }}" class="img-fluid mb-3" style="max-height: 200px; object-fit: contain;">
+                    {% endif %}
+
+                    {% if object|lower == 'product' %}
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Name</dt>
+                            <dd class="col-sm-8">{{ object.name }}</dd>
+                            
+                            <dt class="col-sm-4">Category</dt>
+                            <dd class="col-sm-8">{{ object.category }}</dd>
+                            
+                            <dt class="col-sm-4">Price</dt>
+                            <dd class="col-sm-8">${{ object.price }}</dd>
+                            
+                            <dt class="col-sm-4">Stock</dt>
+                            <dd class="col-sm-8">{{ object.stock }}</dd>
+
+                            <dt class="col-sm-4">Status</dt>
+                            <dd class="col-sm-8">
+                                {% if object.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    {% elif object|lower == 'category' %}
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Name</dt>
+                            <dd class="col-sm-8">{{ object.name }}</dd>
+                            
+                            <dt class="col-sm-4">Parent Category</dt>
+                            <dd class="col-sm-8">{{ object.parent|default:"None" }}</dd>
+                            
+                            <dt class="col-sm-4">Products</dt>
+                            <dd class="col-sm-8">{{ object.product_set.count }}</dd>
+                        </dl>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Add confirmation dialog when form is submitted
+    $('form').submit(function(e) {
+        if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

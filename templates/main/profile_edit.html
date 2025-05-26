@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chỉnh sửa thông tin - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-edit-section {
+        background: #f8f9fa;
+        padding: 3rem 0;
+        min-height: 80vh;
+    }
+
+    .profile-edit-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        position: relative;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-avatar .default-avatar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+        font-size: 3rem;
+    }
+
+    .avatar-upload {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .profile-avatar:hover .avatar-upload {
+        opacity: 1;
+    }
+
+    .profile-form {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s;
+        font-size: 1rem;
+        line-height: 1.5;
+        height: auto;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        font-size: 1rem;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        font-weight: 600;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.3);
+    }
+
+    .alert {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert i {
+        margin-right: 0.5rem;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-edit-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="profile-edit-card" data-aos="fade-up">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            {% if profile.avatar %}
+                                <img src="{{ profile.avatar }}" alt="{{ user.username }}" id="avatar-preview" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'default-avatar\'><i class=\'fas fa-user\'></i></div>';">
+                            {% else %}
+                                <div class="default-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <label for="{{ form.avatar.id_for_label }}" class="avatar-upload">
+                                <i class="fas fa-camera me-1"></i>Thay đổi ảnh
+                            </label>
+                        </div>
+                        <h2>Chỉnh sửa thông tin</h2>
+                    </div>
+
+                    <div class="profile-form">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-info-circle"></i>{{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope form-icon"></i>
+                                    {{ form.email }}
+                                </div>
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">Tên</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user form-icon"></i>
+                                    {{ form.first_name }}
+                                </div>
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Họ</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user form-icon"></i>
+                                    {{ form.last_name }}
+                                </div>
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.avatar.id_for_label }}" class="form-label">Ảnh đại diện</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-image form-icon"></i>
+                                    {{ form.avatar }}
+                                    <small class="form-text text-muted">Chọn ảnh mới để thay đổi ảnh đại diện. Ảnh sẽ được tự động tối ưu hóa.</small>
+                                </div>
+                                {% if form.avatar.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.avatar.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap form classes
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.classList.add('form-control');
+    });
+
+    // Auto-hide alerts
+    document.querySelectorAll('.alert').forEach(alert => {
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }, 5000);
+    });
+
+    // Preview avatar image before upload
+    const avatarUpload = document.getElementById('{{ form.avatar.auto_id }}');
+    const avatarPreview = document.getElementById('avatar-preview');
+    
+    avatarUpload.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (avatarPreview) {
+                    avatarPreview.src = e.target.result;
+                } else {
+                    const container = document.querySelector('.profile-avatar');
+                    container.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" id="avatar-preview" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'default-avatar\'><i class=\'fas fa-user\'></i></div>';"><label for="{{ form.avatar.id_for_label }}" class="avatar-upload"><i class="fas fa-camera me-1"></i>Thay đổi ảnh</label>`;
+                }
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

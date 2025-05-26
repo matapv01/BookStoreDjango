@@ -1,0 +1,232 @@
+/* Dashboard Statistics Cards */
+.dashboard-stats-row {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard-stats-row .col-12 {
+    margin-bottom: 0;
+}
+
+.dashboard-stat {
+    padding: 1.5rem;
+    text-align: center;
+    background: #fff;
+    border-radius: 0.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.dashboard-stat i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 1;
+    display: block;
+}
+
+.dashboard-stat h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    display: block;
+}
+
+.dashboard-stat p {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+    display: block;
+}
+
+.dashboard-stat small {
+    font-size: 0.75rem;
+    display: block;
+}
+
+/* Card styles */
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    background: #fff;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.card-body {
+    padding: 1.25rem;
+    display: block;
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+    display: block;
+}
+
+/* Icon colors */
+.dashboard-stat .text-primary i { color: #0d6efd; }
+.dashboard-stat .text-success i { color: #198754; }
+.dashboard-stat .text-info i { color: #0dcaf0; }
+.dashboard-stat .text-warning i { color: #ffc107; }
+
+/* Recent Orders Table */
+.table-hover tbody tr {
+    background-color: #fff;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Badge styles */
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    display: inline-block;
+}
+
+/* Button styles */
+.btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    display: inline-block;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* Table styles */
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    color: #212529;
+    border-collapse: collapse;
+    display: table;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.75rem;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+.table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+    display: table-cell;
+}
+
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Loading indicator */
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, #4e73df, #224abe);
+    z-index: 9999;
+    display: block;
+}
+
+/* Remove all transitions and animations */
+* {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Force display properties */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-12, .col-sm-6, .col-xl-3 {
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+@media (min-width: 576px) {
+    .col-sm-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-xl-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+
+/* Fix for card layout */
+.card.h-100 {
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body.dashboard-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+/* Fix for icon container */
+.dashboard-stat .text-primary,
+.dashboard-stat .text-success,
+.dashboard-stat .text-info,
+.dashboard-stat .text-warning {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+/* Fix for text alignment */
+.dashboard-stat h3,
+.dashboard-stat p,
+.dashboard-stat small {
+    text-align: center;
+    width: 100%;
+}

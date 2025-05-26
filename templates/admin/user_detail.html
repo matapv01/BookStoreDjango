@@ -1,0 +1,316 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}BookStore Admin - Chi tiết người dùng{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:users' %}">Users</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ user.username }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+        background: #fff;
+    }
+    
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Style cho bảng lịch sử đơn hàng */
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .order-table th {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+    
+    .order-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+    
+    .order-table th.text-end,
+    .order-table td.text-end {
+        text-align: right;
+    }
+    
+    /* Style cho status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5em 0.75em;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .status-pending { background: #ffc107; color: #000; }
+    .status-processing { background: #0dcaf0; color: #000; }
+    .status-shipped { background: #0d6efd; color: #fff; }
+    .status-delivered { background: #198754; color: #fff; }
+    .status-cancelled { background: #dc3545; color: #fff; }
+
+    /* Avatar styles */
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e3e6f0;
+        background-color: #fff;
+        margin: 0 auto;
+        display: block;
+    }
+    .avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: #f8f9fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4e73df;
+        border: 2px solid #e3e6f0;
+        margin: 0 auto;
+        font-size: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Thông tin cá nhân -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Thông tin cá nhân</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    {% if user.userprofile.avatar %}
+                        <img src="{{ user.userprofile.avatar }}" 
+                             alt="{{ user.get_full_name|default:user.username }}" 
+                             class="profile-avatar"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'avatar-placeholder\'><i class=\'fas fa-user\'></i></div>';">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                    <p class="text-muted mb-0">@{{ user.username }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Họ tên</label>
+                    <p>{{ user.get_full_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <p>{{ user.email }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số điện thoại</label>
+                    <p>{{ user.userprofile.phone_number|default:"Chưa cập nhật" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Địa chỉ</label>
+                    <p>{{ user.userprofile.address|default:"Chưa cập nhật" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ngày tham gia</label>
+                    <p>{{ user.date_joined|date:"d/m/Y" }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <p>
+                        {% if user.is_active %}
+                        <span class="status-badge status-delivered">Hoạt động</span>
+                        {% else %}
+                        <span class="status-badge status-cancelled">Đã khóa</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Thao tác</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'admin_panel:edit_user' user.pk %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                        <i class="fas fa-key"></i> Reset mật khẩu
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử đơn hàng -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Lịch sử đơn hàng</h6>
+            </div>
+            <div class="card-body">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th class="text-end">Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in user_orders %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'admin_panel:order_detail' order.pk %}">#{{ order.id }}</a>
+                            </td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td class="text-end">{{ order.total_amount|floatformat:0 }}đ</td>
+                            <td>
+                                <span class="status-badge status-{{ order.status|lower }}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Chưa có đơn hàng nào.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if user.is_superuser %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Không thể xóa tài khoản quản trị viên.
+                </div>
+                {% else %}
+                <p>Bạn có chắc chắn muốn xóa người dùng "{{ user.get_full_name }}" không?</p>
+                <p class="text-danger mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Hành động này không thể hoàn tác.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                {% if not user.is_superuser %}
+                <form action="{% url 'admin_panel:delete_user' user.pk %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset Password -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Reset mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn reset mật khẩu của người dùng "{{ user.get_full_name }}" không?</p>
+                <p class="text-danger mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Người dùng sẽ cần đăng nhập lại và nên đổi mật khẩu ngay sau khi đăng nhập.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning" id="confirmResetPassword">Reset mật khẩu</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle reset password confirmation
+    $('#confirmResetPassword').on('click', function() {
+        const userId = {{ user.pk }};
+        const userName = "{{ user.get_full_name }}";
+        
+        // Close confirmation modal
+        $('#resetPasswordModal').modal('hide');
+        
+        // Make AJAX call to reset password
+        $.ajax({
+            url: `/admin-panel/users/${userId}/reset-password/`,
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Hiển thị thông báo thành công với mật khẩu mới
+                    toastr.success(`Đã reset mật khẩu của người dùng "${userName}". Mật khẩu mới: ${response.new_password}`);
+                } else {
+                    toastr.error(response.message || 'Có lỗi xảy ra khi reset mật khẩu');
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Có lỗi xảy ra khi reset mật khẩu';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMsg = response.message;
+                    }
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                }
+                toastr.error(errorMsg);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

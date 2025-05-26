@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ system_settings.site_name|default:"BookStore" }} - Trang chủ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold mb-4">{{ system_settings.site_name|default:"BookStore" }}</h1>
+        <p class="lead mb-4">{{ system_settings.site_description|default:"Mở tri thức, mở tương lai" }}</p>
+        <a href="{% url 'products:featured' %}" class="btn btn-primary btn-lg">Xem sản phẩm nổi bật</a>
+    </div>
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <img src="{% static 'img/hero-image.jpg' %}" alt="Hero Image" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+
+<!-- Featured Categories -->
+<section class="featured-categories py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Danh mục nổi bật</h2>
+        <div class="row g-4">
+            {% for category in featured_categories %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}">
+                    {% endif %}
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text text-muted">{{ category.description|truncatewords:20 }}</p>
+                        <a href="{% url 'products:category_detail' category.slug %}" class="btn btn-outline-primary">
+                            Xem thêm
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Sản phẩm nổi bật</h2>
+            <a href="{% url 'products:featured' %}" class="btn btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if product.discount %}
+                                <span class="text-decoration-line-through text-muted me-2">
+                                    {{ product.price|floatformat:0 }}đ
+                                </span>
+                                <span class="text-danger fw-bold">
+                                    {{ product.discounted_price|floatformat:0 }}đ
+                                </span>
+                                {% else %}
+                                <span class="fw-bold">{{ product.price|floatformat:0 }}đ</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-primary btn-sm">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- New Products -->
+<section class="new-products py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Sản phẩm mới</h2>
+            <a href="{% url 'products:new' %}" class="btn btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="row g-4">
+            {% for product in new_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if product.discount %}
+                                <span class="text-decoration-line-through text-muted me-2">
+                                    {{ product.price|floatformat:0 }}đ
+                                </span>
+                                <span class="text-danger fw-bold">
+                                    {{ product.discounted_price|floatformat:0 }}đ
+                                </span>
+                                {% else %}
+                                <span class="fw-bold">{{ product.price|floatformat:0 }}đ</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-primary btn-sm">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Sale Products -->
+<section class="sale-products py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Đang giảm giá</h2>
+            <a href="{% url 'products:sale' %}" class="btn btn-outline-primary">Xem tất cả</a>
+        </div>
+        <div class="row g-4">
+            {% for product in sale_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-decoration-line-through text-muted me-2">
+                                    {{ product.price|floatformat:0 }}đ
+                                </span>
+                                <span class="text-danger fw-bold">
+                                    {{ product.discounted_price|floatformat:0 }}đ
+                                </span>
+                            </div>
+                            <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-primary btn-sm">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <h2 class="mb-4">Đăng ký nhận tin</h2>
+                <p class="text-muted mb-4">Đăng ký để nhận những thông tin mới nhất về sản phẩm và khuyến mãi.</p>
+                <form action="{% url 'newsletter:subscribe' %}" method="post" class="d-flex">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="form-control me-2" placeholder="Email của bạn" required>
+                    <button type="submit" class="btn btn-primary">Đăng ký</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

@@ -1,0 +1,259 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Thông tin cá nhân{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 1rem;
+    }
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 2px solid #e3e6f0;
+        border-radius: 50%;
+    }
+    .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        font-size: 3rem;
+        background: #f8f9fc;
+        color: #4e73df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #e3e6f0;
+        border-radius: 50%;
+    }
+    .profile-info {
+        background: #fff;
+        border: 1px solid #e3e6f0;
+        border-radius: 0.25rem;
+    }
+    .profile-info-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .profile-info-item:last-child {
+        border-bottom: none;
+    }
+    .profile-info-label {
+        color: #5a5c69;
+    }
+    .profile-info-value {
+        color: #2e59d9;
+    }
+    .profile-card {
+        height: 100%;
+    }
+    .activity-table th {
+        font-weight: 600;
+        color: #5a5c69;
+    }
+    .activity-table td {
+        vertical-align: middle;
+    }
+    .form-label {
+        color: #5a5c69;
+    }
+    .btn-primary {
+        background: #4e73df;
+        border: none;
+    }
+    .btn-primary:hover {
+        background: #2e59d9;
+    }
+    .btn-outline-primary {
+        border-color: #4e73df;
+        color: #4e73df;
+    }
+    .btn-outline-primary:hover {
+        background: #4e73df;
+        color: white;
+    }
+    .card {
+        border: 1px solid #e3e6f0;
+        box-shadow: none;
+    }
+    .card-header {
+        background: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .badge {
+        font-weight: normal;
+    }
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e3e6f0;
+        margin-bottom: 1rem;
+    }
+    .avatar-preview-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #f8f9fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4e73df;
+        border: 2px solid #e3e6f0;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Thông tin cá nhân</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid profile-container">
+    <div class="row g-3">
+        <!-- Left Column -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Profile Card -->
+            <div class="card profile-card">
+                <div class="card-header py-2">
+                    <h6 class="m-0">Thông tin cá nhân</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if user.userprofile.avatar %}
+                            <img src="{{ user.userprofile.avatar }}" alt="{{ user.get_full_name }}" 
+                                 class="profile-avatar" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'profile-avatar-placeholder\'><i class=\'fas fa-user\'></i></div>';">
+                        {% else %}
+                            <div class="profile-avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                        <h5 class="mt-2 mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                        <p class="mb-0">
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger">Administrator</span>
+                            {% elif user.is_staff %}
+                                <span class="badge bg-warning">Staff</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="profile-info rounded">
+                        <div class="profile-info-item d-flex justify-content-between">
+                            <span class="profile-info-label">Tên đăng nhập</span>
+                            <span class="profile-info-value">{{ user.username }}</span>
+                        </div>
+                        <div class="profile-info-item d-flex justify-content-between">
+                            <span class="profile-info-label">Email</span>
+                            <span class="profile-info-value">{{ user.email }}</span>
+                        </div>
+                        <div class="profile-info-item d-flex justify-content-between">
+                            <span class="profile-info-label">Số điện thoại</span>
+                            <span class="profile-info-value">{{ user.userprofile.phone_number|default:"Chưa cập nhật" }}</span>
+                        </div>
+                        <div class="profile-info-item d-flex justify-content-between">
+                            <span class="profile-info-label">Địa chỉ</span>
+                            <span class="profile-info-value">{{ user.userprofile.address|default:"Chưa cập nhật" }}</span>
+                        </div>
+                        <div class="profile-info-item d-flex justify-content-between">
+                            <span class="profile-info-label">Ngày tham gia</span>
+                            <span class="profile-info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Update Profile Card -->
+            <div class="card">
+                <div class="card-header py-2">
+                    <h6 class="m-0">Cập nhật thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" name="phone" value="{{ user.userprofile.phone_number }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" name="full_name" value="{{ user.get_full_name }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Địa chỉ</label>
+                                <textarea class="form-control" name="address" rows="2">{{ user.userprofile.address }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Ảnh đại diện</label>
+                                <div class="text-center mb-3">
+                                    {% if user.userprofile.avatar %}
+                                        <img src="{{ user.userprofile.avatar }}" alt="{{ user.get_full_name }}" 
+                                             class="avatar-preview" id="avatar-preview"
+                                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'avatar-preview-placeholder\'><i class=\'fas fa-user\'></i></div>';">
+                                    {% else %}
+                                        <div class="avatar-preview-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <input type="file" class="form-control" name="avatar" accept="image/*" onchange="previewAvatar(this)">
+                                <small class="text-muted">Để trống nếu không muốn thay đổi ảnh đại diện</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            <a href="{% url 'admin_panel:password_change' %}" class="btn btn-outline-secondary">Đổi mật khẩu</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatar-preview');
+            if (preview) {
+                preview.src = e.target.result;
+            } else {
+                const container = input.parentElement.querySelector('.text-center');
+                container.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="avatar-preview" id="avatar-preview">`;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

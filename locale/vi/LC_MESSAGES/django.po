@@ -1,0 +1,202 @@
+# Vietnamese translation for BookStore Django project.
+# Copyright (C) 2025 BookStore
+# This file is distributed under the same license as the BookStore package.
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: BookStore 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-29 02:57+0700\n"
+"PO-Revision-Date: 2025-03-29 02:57+0700\n"
+"Last-Translator: BookStore Team\n"
+"Language-Team: Vietnamese\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# Form validation messages
+msgid "This password is too short. It must contain at least %(min_length)d characters."
+msgstr "Mật khẩu quá ngắn. Mật khẩu phải có ít nhất %(min_length)d ký tự."
+
+msgid "This password is too common."
+msgstr "Mật khẩu này quá phổ biến."
+
+msgid "This password is entirely numeric."
+msgstr "Mật khẩu không được chỉ chứa số."
+
+msgid "The two password fields didn't match."
+msgstr "Hai mật khẩu không khớp nhau."
+
+msgid "A user with that username already exists."
+msgstr "Tên đăng nhập này đã tồn tại."
+
+msgid "This field is required."
+msgstr "Vui lòng điền thông tin này."
+
+msgid "Enter a valid email address."
+msgstr "Vui lòng nhập địa chỉ email hợp lệ."
+
+msgid "Enter a valid URL."
+msgstr "Vui lòng nhập URL hợp lệ."
+
+msgid "Enter a valid date."
+msgstr "Vui lòng nhập ngày hợp lệ."
+
+msgid "Enter a valid integer."
+msgstr "Vui lòng nhập số nguyên hợp lệ."
+
+msgid "Enter a valid decimal number."
+msgstr "Vui lòng nhập số thập phân hợp lệ."
+
+msgid "Enter a valid time."
+msgstr "Vui lòng nhập thời gian hợp lệ."
+
+msgid "Enter a valid date/time."
+msgstr "Vui lòng nhập ngày giờ hợp lệ."
+
+msgid "Enter a valid IPv4 address."
+msgstr "Vui lòng nhập địa chỉ IPv4 hợp lệ."
+
+msgid "Enter a valid IPv6 address."
+msgstr "Vui lòng nhập địa chỉ IPv6 hợp lệ."
+
+msgid "Enter a valid IPv4 or IPv6 address."
+msgstr "Vui lòng nhập địa chỉ IPv4 hoặc IPv6 hợp lệ."
+
+msgid "Enter a valid JSON."
+msgstr "Vui lòng nhập JSON hợp lệ."
+
+msgid "Enter a valid phone number."
+msgstr "Vui lòng nhập số điện thoại hợp lệ."
+
+msgid "Enter a valid postal code."
+msgstr "Vui lòng nhập mã bưu điện hợp lệ."
+
+msgid "Enter a valid social security number."
+msgstr "Vui lòng nhập số bảo hiểm xã hội hợp lệ."
+
+msgid "Enter a valid tax number."
+msgstr "Vui lòng nhập mã số thuế hợp lệ."
+
+msgid "Enter a valid bank account number."
+msgstr "Vui lòng nhập số tài khoản ngân hàng hợp lệ."
+
+msgid "Enter a valid credit card number."
+msgstr "Vui lòng nhập số thẻ tín dụng hợp lệ."
+
+msgid "Enter a valid ISBN."
+msgstr "Vui lòng nhập ISBN hợp lệ."
+
+msgid "Enter a valid ISSN."
+msgstr "Vui lòng nhập ISSN hợp lệ."
+
+msgid "Enter a valid EAN."
+msgstr "Vui lòng nhập EAN hợp lệ."
+
+msgid "Enter a valid UPC."
+msgstr "Vui lòng nhập UPC hợp lệ."
+
+msgid "Enter a valid GTIN."
+msgstr "Vui lòng nhập GTIN hợp lệ."
+
+msgid "Enter a valid ASIN."
+msgstr "Vui lòng nhập ASIN hợp lệ."
+
+msgid "Enter a valid ISBN-10."
+msgstr "Vui lòng nhập ISBN-10 hợp lệ."
+
+msgid "Enter a valid ISBN-13."
+msgstr "Vui lòng nhập ISBN-13 hợp lệ."
+
+msgid "Enter a valid ISSN-8."
+msgstr "Vui lòng nhập ISSN-8 hợp lệ."
+
+msgid "Enter a valid ISSN-13."
+msgstr "Vui lòng nhập ISSN-13 hợp lệ."
+
+msgid "Enter a valid EAN-8."
+msgstr "Vui lòng nhập EAN-8 hợp lệ."
+
+msgid "Enter a valid EAN-13."
+msgstr "Vui lòng nhập EAN-13 hợp lệ."
+
+msgid "Enter a valid UPC-A."
+msgstr "Vui lòng nhập UPC-A hợp lệ."
+
+msgid "Enter a valid UPC-E."
+msgstr "Vui lòng nhập UPC-E hợp lệ."
+
+msgid "Enter a valid GTIN-8."
+msgstr "Vui lòng nhập GTIN-8 hợp lệ."
+
+msgid "Enter a valid GTIN-12."
+msgstr "Vui lòng nhập GTIN-12 hợp lệ."
+
+msgid "Enter a valid GTIN-13."
+msgstr "Vui lòng nhập GTIN-13 hợp lệ."
+
+msgid "Enter a valid GTIN-14."
+msgstr "Vui lòng nhập GTIN-14 hợp lệ."
+
+msgid "Enter a valid ASIN-10."
+msgstr "Vui lòng nhập ASIN-10 hợp lệ."
+
+msgid "Enter a valid ASIN-13."
+msgstr "Vui lòng nhập ASIN-13 hợp lệ."
+
+# Order status choices
+msgid "ORDER_PENDING"
+msgstr "Đang chờ xử lý"
+
+msgid "PROCESSING"
+msgstr "Đang xử lý"
+
+msgid "SHIPPED"
+msgstr "Đã giao cho vận chuyển"
+
+msgid "DELIVERED"
+msgstr "Đã giao hàng"
+
+msgid "CANCELLED"
+msgstr "Đã hủy"
+
+# Payment status choices
+msgid "PAYMENT_PENDING"
+msgstr "Đang chờ thanh toán"
+
+msgid "PAID"
+msgstr "Đã thanh toán"
+
+msgid "FAILED"
+msgstr "Thanh toán thất bại"
+
+msgid "REFUNDED"
+msgstr "Đã hoàn tiền"
+
+# Payment method choices
+msgid "Cash on Delivery"
+msgstr "Thanh toán khi nhận hàng"
+
+msgid "Credit/Debit Card"
+msgstr "Thẻ tín dụng/ghi nợ"
+
+msgid "Bank Transfer"
+msgstr "Chuyển khoản ngân hàng"
+
+msgid "Thanh toán khi nhận hàng"
+msgstr "Thanh toán khi nhận hàng"
+
+msgid "Thẻ tín dụng/Thẻ ghi nợ"
+msgstr "Thẻ tín dụng/Thẻ ghi nợ"
+
+msgid "Chuyển khoản ngân hàng"
+msgstr "Chuyển khoản ngân hàng"
+
+# Languages
+msgid "English"
+msgstr "Tiếng Anh"
+
+msgid "Vietnamese"
+msgstr "Tiếng Việt"

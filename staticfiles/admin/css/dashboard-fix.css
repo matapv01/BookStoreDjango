@@ -1,0 +1,116 @@
+/* Fix for dashboard stats */
+.dashboard-stats-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.dashboard-stats-row .col-12 {
+    margin-bottom: 0 !important;
+}
+
+.dashboard-stat {
+    padding: 1.5rem !important;
+    text-align: center !important;
+    background: #fff !important;
+    border-radius: 0.5rem !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    overflow: visible !important;
+    border: 1px solid rgba(0, 0, 0, 0.125) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.dashboard-stat i {
+    font-size: 2.5rem !important;
+    margin-bottom: 1rem !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.dashboard-stat h3 {
+    font-size: 1.75rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+    color: #333 !important;
+    display: block !important;
+}
+
+.dashboard-stat p {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.5rem !important;
+    color: #6c757d !important;
+    display: block !important;
+}
+
+.dashboard-stat small {
+    font-size: 0.75rem !important;
+    display: block !important;
+}
+
+/* Fix for card layout */
+.card.h-100 {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.card-body.dashboard-stat {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 1.5rem !important;
+}
+
+/* Fix for icon container */
+.dashboard-stat .text-primary,
+.dashboard-stat .text-success,
+.dashboard-stat .text-info,
+.dashboard-stat .text-warning {
+    display: block !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Fix for text alignment */
+.dashboard-stat h3,
+.dashboard-stat p,
+.dashboard-stat small {
+    text-align: center !important;
+    width: 100% !important;
+}
+
+/* Force display properties */
+.row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-right: -15px !important;
+    margin-left: -15px !important;
+}
+
+.col-12, .col-sm-6, .col-xl-3 {
+    position: relative !important;
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+}
+
+@media (min-width: 576px) {
+    .col-sm-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-xl-3 {
+        flex: 0 0 25% !important;
+        max-width: 25% !important;
+    }
+} 

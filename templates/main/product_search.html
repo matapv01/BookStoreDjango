@@ -1,0 +1,101 @@
+{% extends 'main/header.html' %}
+{% load static %}
+
+{% block title %}Tìm kiếm - {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'main:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            {% if query %}
+            <h1>Kết quả tìm kiếm cho "{{ query }}"</h1>
+            {% else %}
+            <h1>Tất cả sản phẩm</h1>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <form class="d-flex" action="{% url 'main:product_search' %}" method="get">
+                <input class="form-control me-2" type="search" name="q" placeholder="Tìm kiếm sản phẩm..." value="{{ query }}">
+                <button class="btn btn-outline-primary" type="submit">Tìm</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-3">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.category.name }}</p>
+                    {% if product.discount %}
+                    <p class="card-text">
+                        <span class="text-decoration-line-through text-muted me-2">
+                            {{ product.price|floatformat:0 }}đ
+                        </span>
+                        <span class="text-danger fw-bold">
+                            {{ product.final_price|floatformat:0 }}đ
+                        </span>
+                        <span class="badge bg-danger ms-2">-{{ product.discount }}%</span>
+                    </p>
+                    {% else %}
+                    <p class="card-text fw-bold">{{ product.price|floatformat:0 }}đ</p>
+                    {% endif %}
+                    <p class="card-text"><small class="text-muted">Còn {{ product.stock }} sản phẩm</small></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'main:product_detail' product.slug %}" class="btn btn-outline-primary">Chi tiết</a>
+                        {% if product.stock > 0 %}
+                        <a href="{% url 'main:add_to_cart' product.id %}" class="btn btn-primary">
+                            <i class="fas fa-cart-plus"></i>
+                        </a>
+                        {% else %}
+                        <button class="btn btn-secondary" disabled>Hết hàng</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Không tìm thấy sản phẩm nào{% if query %} phù hợp với từ khóa "{{ query }}"{% endif %}.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if products.paginator.num_pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Trước</a>
+            </li>
+            {% endif %}
+
+            {% for i in products.paginator.page_range %}
+            <li class="page-item {% if products.number == i %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}">{{ i }}</a>
+            </li>
+            {% endfor %}
+
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Sau</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

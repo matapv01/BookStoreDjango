@@ -1,0 +1,486 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ system_settings.site_name|default:"BookStore" }} - {{ system_settings.site_description|default:"Mở tri thức, mở tương lai" }}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- AOS CSS for animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-hover: #27ae60;
+            --primary-light: #e8f8f5;
+            --primary-lighter: #f0f9f4;
+            --bg-light: #ffffff;
+            --bg-card: #f8f9fa;
+            --bg-card-hover: #ffffff;
+            --text-primary: #1a5c2e;
+            --text-secondary: #2d7d46;
+            --border-color: #d4f1e0;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --info-color: #2ecc71;
+        }
+
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: var(--bg-light) !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .navbar-brand:hover {
+            color: var(--primary-hover) !important;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);
+            background-color: var(--bg-card-hover);
+        }
+
+        .card-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bg-light);
+            border-color: var(--primary-color);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Tables */
+        .table {
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .table thead th {
+            background-color: var(--primary-lighter);
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--primary-lighter);
+        }
+
+        /* Alerts */
+        .alert {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+        }
+
+        .alert-success {
+            background-color: var(--primary-lighter);
+            border-left: 4px solid var(--success-color);
+            color: var(--text-primary);
+        }
+
+        .alert-danger {
+            background-color: #fde8e8;
+            border-left: 4px solid var(--danger-color);
+            color: #c53030;
+        }
+
+        .alert-warning {
+            background-color: #fef9e7;
+            border-left: 4px solid var(--warning-color);
+            color: #975a16;
+        }
+
+        .alert-info {
+            background-color: var(--primary-lighter);
+            border-left: 4px solid var(--info-color);
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-lighter);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 2rem 0;
+        }
+
+        .footer-section h5 {
+            color: var(--primary-hover);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-hover);
+        }
+
+        /* Dropdowns */
+        .dropdown-menu {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--primary-lighter);
+            color: var(--primary-hover);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Pagination */
+        .pagination .page-link {
+            background-color: var(--bg-light);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--primary-lighter);
+            color: var(--primary-hover);
+        }
+
+        .pagination .active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+        }
+
+        .scroll-top:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Navbar Icons */
+        .navbar .d-flex {
+            gap: 1.5rem;  /* Tăng khoảng cách giữa các icon */
+        }
+
+        .nav-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .nav-icon:hover {
+            color: var(--primary-hover);
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* User Menu */
+        .user-menu .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .user-menu .dropdown-item {
+            padding: 0.7rem 1rem;
+        }
+
+        .user-menu .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .user-menu .dropdown-divider {
+            border-color: var(--border-color);
+            margin: 0.5rem 0;
+        }
+
+        .user-menu .dropdown-item.text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .user-menu .dropdown-item.text-danger:hover {
+            background-color: #fde8e8;
+        }
+
+        .user-menu .dropdown-item.text-danger i {
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'main:home' %}">
+                <i class="fas fa-book-open me-2"></i>{{ system_settings.site_name|default:"BookStore" }}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'main:home' %}">
+                            <i class="fas fa-home me-1"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'main:product_list' %}">
+                            <i class="fas fa-book me-1"></i>Sản phẩm
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'main:category_list' %}">
+                            <i class="fas fa-list me-1"></i>Danh mục
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'main:cart' %}" class="nav-icon position-relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if request.user.is_authenticated and cart_items_count > 0 %}
+                            <span class="cart-badge">{{ cart_items_count }}</span>
+                        {% endif %}
+                    </a>
+                    {% if user.is_authenticated %}
+                        <div class="user-menu">
+                            <a href="#" class="nav-icon" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'main:profile' %}">
+                                    <i class="fas fa-user me-2"></i>Tài khoản
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'main:order_history' %}">
+                                    <i class="fas fa-history me-2"></i>Lịch sử mua hàng
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'main:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'main:login' %}" class="nav-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" data-aos="fade-up">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'main/footer.html' %}
+
+    <!-- Scroll to top button -->
+    <div class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        // Scroll to top functionality
+        const scrollTop = document.querySelector('.scroll-top');
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 100) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+        });
+
+        scrollTop.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Auto-hide alerts
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            setTimeout(function() {
+                alert.classList.remove('show');
+                setTimeout(function() {
+                    alert.remove();
+                }, 300);
+            }, 5000);
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,375 @@
+{% load static %}
+<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 shadow-sm">
+    <!-- Sidebar toggle button -->
+    <button class="navbar-toggler d-md-none collapsed me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Brand logo -->
+    <a class="navbar-brand me-0 me-md-2 py-0" href="{% url 'admin_panel:dashboard' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" height="32" id="brandLogo">
+        <span class="ms-2 d-none d-sm-inline fw-bold">Quản trị viên</span>
+    </a>
+
+    <!-- Spacer to push everything to right -->
+    <div class="flex-fill"></div>
+
+    <!-- Right aligned items -->
+    <div class="navbar-nav flex-row align-items-center">
+        <!-- Notifications Dropdown -->
+        <div class="nav-item dropdown me-3">
+            <a class="nav-link position-relative p-1" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="rounded-circle bg-light p-2" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bell text-primary"></i>
+                </div>
+                {% if unread_notifications_count %}
+                    <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger" style="font-size: 0.75rem; padding: 0.25em 0.5em; min-width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center;">
+                        {{ unread_notifications_count }}
+                        <span class="visually-hidden">thông báo mới</span>
+                    </span>
+                {% endif %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 280px;" aria-labelledby="notificationsDropdown">
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                    <h6 class="mb-0">Thông báo</h6>
+                    <button class="btn btn-link btn-sm text-muted p-0" onclick="markAllNotificationsRead()">
+                        Đánh dấu đã đọc tất cả
+                    </button>
+                </div>
+                <div class="notification-scroll" style="max-height: 300px; overflow-y: auto;">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                            <div class="dropdown-item py-2 px-3 border-bottom notification-item {% if not notification.is_read %}unread{% endif %}" 
+                                 data-notification-id="{{ notification.id }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-light p-2">
+                                            <i class="fas fa-{% if notification.notification_type == 'new_order' %}shopping-cart
+                                                         {% elif notification.notification_type == 'order_cancelled' %}times-circle
+                                                         {% elif notification.notification_type == 'order_status' %}sync
+                                                         {% elif notification.notification_type == 'payment_status' %}money-bill-wave
+                                                         {% else %}info-circle{% endif %} text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <a href="{{ notification.link }}" class="text-decoration-none text-dark" onclick="markNotificationRead({{ notification.id }}, event)">
+                                            <p class="mb-0 text-wrap">{{ notification.message }}</p>
+                                            <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
+                                        </a>
+                                    </div>
+                                    <div class="ms-2">
+                                        <button class="btn btn-link btn-sm text-muted p-0" onclick="deleteNotification({{ notification.id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dropdown-item text-center text-muted py-3">Không có thông báo</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- User Dropdown -->
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center p-1" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="me-2 d-none d-sm-block text-end">
+                    <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="text-muted small">Quản trị viên</div>
+                </div>
+                {% if user.userprofile.avatar %}
+                    <img src="{{ user.userprofile.avatar }}" alt="{{ user.get_full_name }}" class="rounded-circle object-fit-cover" width="36" height="36">
+                {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        {{ user.get_full_name|default:user.username|first|upper }}
+                    </div>
+                {% endif %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                <div class="dropdown-header py-2">
+                    <strong>{{ user.get_full_name|default:user.username }}</strong>
+                </div>
+                <a class="dropdown-item py-2" href="{% url 'admin_panel:profile' %}">
+                    <i class="fas fa-user me-2 text-muted"></i>Hồ sơ cá nhân
+                </a>
+                <a class="dropdown-item py-2" 
+                   href="{% url 'admin_panel:settings' %}"
+                   {% if not user.is_superuser %}
+                   onclick="event.preventDefault(); Swal.fire({
+                       title: 'Không có quyền truy cập',
+                       text: 'Chỉ quản trị viên mới có quyền truy cập vào trang cài đặt hệ thống.',
+                       icon: 'error',
+                       confirmButtonText: 'Đóng',
+                       confirmButtonColor: '#dc3545'
+                   });"
+                   {% endif %}>
+                    <i class="fas fa-cog me-2 text-muted"></i>Cài đặt hệ thống
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger py-2" href="{% url 'admin_panel:logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+{% if messages %}
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 60px;">
+    {% for message in messages %}
+        <div class="toast show shadow-sm" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger{% elif message.tags == 'warning' %}bg-warning{% else %}bg-info{% endif %} text-white">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                <strong class="me-auto">{{ message.tags|title|default:"Thông báo" }}</strong>
+                <small>bây giờ</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<style>
+    /* Notification styles */
+    .notification-item {
+        transition: background-color 0.2s ease;
+    }
+    
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+        background-color: #f0f7ff;
+    }
+    
+    .notification-item.unread:hover {
+        background-color: #e6f2ff;
+    }
+    
+    .notification-item .text-primary {
+        color: #0d6efd !important;
+    }
+    
+    .notification-item .text-muted {
+        color: #6c757d !important;
+    }
+    
+    .notification-item .btn-link {
+        color: #6c757d;
+        transition: color 0.2s ease;
+    }
+    
+    .notification-item .btn-link:hover {
+        color: #dc3545;
+    }
+    
+    /* Badge styles */
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    
+    /* Dropdown styles */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        transition: background-color 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-item.text-danger:hover {
+        background-color: #dc3545;
+        color: #fff !important;
+    }
+    
+    .dropdown-item.text-danger:hover i {
+        color: #fff !important;
+    }
+    
+    /* Toast styles */
+    .toast {
+        background-color: #fff;
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .toast-header {
+        border-bottom: none;
+    }
+    
+    .toast-body {
+        padding: 0.75rem 1rem;
+    }
+</style>
+
+<script>
+    document.getElementById('brandLogo').onerror = function() {
+        this.src = "{% static 'images/default-logo.png' %}";
+        this.style.opacity = '0.7';
+    };
+    
+    // Auto-hide toasts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast.show');
+        toasts.forEach(toast => {
+            setTimeout(function() {
+                const bsToast = bootstrap.Toast.getInstance(toast);
+                if (bsToast) bsToast.hide();
+            }, 5000);
+        });
+    });
+
+    // Cập nhật thông báo mỗi 30 giây
+    setInterval(updateNotifications, 30000);
+
+    // Cập nhật thông báo khi trang được tải
+    document.addEventListener('DOMContentLoaded', updateNotifications);
+
+    function updateNotifications() {
+        fetch('{% url "admin_panel:get_notifications" %}')
+            .then(response => response.json())
+            .then(data => {
+                const notificationDropdown = document.getElementById('notificationsDropdown');
+                const notificationCount = document.querySelector('#notificationsDropdown .badge');
+                const notificationList = document.querySelector('.notification-scroll');
+                
+                // Cập nhật số lượng thông báo chưa đọc
+                const unreadCount = data.notifications.filter(n => !n.is_read).length;
+                if (unreadCount > 0) {
+                    if (!notificationCount) {
+                        const badge = document.createElement('span');
+                        badge.className = 'position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger';
+                        badge.style.cssText = 'font-size: 0.75rem; padding: 0.25em 0.5em; min-width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center;';
+                        badge.innerHTML = `${unreadCount}<span class="visually-hidden">thông báo mới</span>`;
+                        notificationDropdown.appendChild(badge);
+                    } else {
+                        notificationCount.textContent = unreadCount;
+                    }
+                } else if (notificationCount) {
+                    notificationCount.remove();
+                }
+
+                // Cập nhật danh sách thông báo
+                if (data.notifications.length > 0) {
+                    notificationList.innerHTML = data.notifications.map(notification => `
+                        <div class="dropdown-item py-2 px-3 border-bottom notification-item ${notification.is_read ? '' : 'unread'}" 
+                             data-notification-id="${notification.id}">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-light p-2">
+                                        <i class="fas fa-${getNotificationIcon(notification.type)} text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <a href="${notification.link}" class="text-decoration-none text-dark" onclick="markNotificationRead(${notification.id}, event)">
+                                        <p class="mb-0 text-wrap">${notification.message}</p>
+                                        <small class="text-muted">${notification.created_at}</small>
+                                    </a>
+                                </div>
+                                <div class="ms-2">
+                                    <button class="btn btn-link btn-sm text-muted p-0" onclick="deleteNotification(${notification.id})">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    notificationList.innerHTML = '<div class="dropdown-item text-center text-muted py-3">Không có thông báo</div>';
+                }
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
+    }
+
+    function getNotificationIcon(type) {
+        switch (type) {
+            case 'Đơn hàng mới': return 'shopping-cart';
+            case 'Đơn hàng bị hủy': return 'times-circle';
+            case 'Cập nhật trạng thái đơn hàng': return 'sync';
+            case 'Cập nhật trạng thái thanh toán': return 'money-bill-wave';
+            default: return 'info-circle';
+        }
+    }
+
+    function markNotificationRead(notificationId, event) {
+        event.preventDefault();
+        const link = event.currentTarget.href;
+        
+        fetch(`{% url "admin_panel:mark_notification_read" 0 %}`.replace('0', notificationId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateNotifications();
+                window.location.href = link;
+            }
+        })
+        .catch(error => console.error('Error marking notification as read:', error));
+    }
+
+    function deleteNotification(notificationId) {
+        if (confirm('Bạn có chắc muốn xóa thông báo này?')) {
+            fetch(`{% url "admin_panel:delete_notification" 0 %}`.replace('0', notificationId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateNotifications();
+                }
+            })
+            .catch(error => console.error('Error deleting notification:', error));
+        }
+    }
+
+    function markAllNotificationsRead() {
+        fetch('{% url "admin_panel:mark_all_notifications_read" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateNotifications();
+            }
+        })
+        .catch(error => console.error('Error marking all notifications as read:', error));
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>

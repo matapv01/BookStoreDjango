@@ -1,0 +1,505 @@
+/* Admin Dashboard Styles */
+
+/* Custom Properties */
+:root {
+    --primary-color: #3B82F6; /* Blue-500 */
+    --primary-hover: #2563EB; /* Blue-600 */
+    --secondary-color: #6B7280; /* Gray-500 */
+    --text-color: #374151; /* Gray-700 */
+    --success-color: #10B981; /* Emerald-500 */
+    --warning-color: #F59E0B; /* Amber-500 */
+    --danger-color: #EF4444; /* Red-500 */
+    --info-color: #0EA5E9; /* Sky-500 */
+    --light-bg: #F9FAFB; /* Gray-50 */
+    --white-bg: #FFFFFF;
+    --border-color: #E5E7EB; /* Gray-200 */
+    --input-border: #D1D5DB; /* Gray-300 */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --border-radius-sm: 0.25rem; /* 4px */
+    --border-radius: 0.375rem; /* 6px */
+    --border-radius-md: 0.5rem; /* 8px */
+    --border-radius-lg: 0.75rem; /* 12px */
+}
+
+/* Global Styles */
+body {
+    background-color: var(--light-bg);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    color: var(--text-color);
+    font-size: 0.9rem; /* Slightly smaller base font size */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #1F2937; /* Gray-800 */
+    font-weight: 600;
+}
+
+/* Header Styles */
+header.navbar { /* Target the header specifically */
+    position: fixed; /* Make header fixed */
+    top: 0;
+    left: 0; /* Align to left */
+    right: 0; /* Stretch across */
+    z-index: 1020; /* Ensure header is above sidebar */
+    /* Assuming header has a defined height, e.g., 60px. Adjust if needed. */
+}
+
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+    box-shadow: var(--shadow-md); /* Slightly larger shadow for header */
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+.navbar .nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly more visible hover */
+}
+
+.navbar .dropdown-menu {
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg); /* Larger shadow for dropdown */
+    border-radius: var(--border-radius-md);
+    margin-top: 0.5rem; /* Add some space */
+}
+
+.navbar .dropdown-item {
+    padding: 0.6rem 1.2rem; /* Increase padding */
+    color: var(--text-color);
+    font-size: 0.875rem;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: var(--light-bg);
+    color: var(--primary-color);
+}
+
+.navbar .dropdown-item i {
+    margin-right: 0.5rem;
+    opacity: 0.7;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 60px; /* Start below the fixed header */
+    left: 0;
+    height: calc(100vh - 60px); /* Full height minus header height */
+    width: 260px; /* Keep width */
+    background: var(--white-bg);
+    box-shadow: var(--shadow);
+    z-index: 1010; /* Ensure sidebar is below header but above content overlay if any */
+    padding-top: 1rem;
+    overflow-y: auto; /* Add scroll if sidebar content is long */
+    border-right: 1px solid var(--border-color);
+}
+
+/* Adjust main content margin and padding for fixed header/sidebar */
+main.col-md-9 { /* Assuming this is the main content area */
+    margin-left: 260px; /* Match sidebar width */
+    padding-top: calc(60px + 1.5rem); /* Header height + desired top padding */
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 1.5rem; /* Add bottom padding */
+}
+
+/* Remove negative margin for stats row, adjust main padding instead */
+.dashboard-stats-row {
+     margin-bottom: 2rem; /* Add space below stats */
+}
+
+.sidebar .nav-link {
+    color: var(--text-color);
+    padding: 0.75rem 1.25rem; /* Adjust padding */
+    border-radius: var(--border-radius);
+    margin: 0.25rem 0.75rem; /* Adjust margin */
+    display: flex;
+    align-items: center;
+    gap: 0.85rem; /* Adjust gap */
+    font-weight: 500; /* Medium weight */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #EFF6FF; /* Blue-50 */
+    color: var(--primary-hover);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--white-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar .nav-link.active:hover {
+    background-color: var(--primary-hover); /* Darken active link on hover */
+}
+
+.sidebar .nav-link i {
+    width: 1.25rem;
+    text-align: center;
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover i,
+.sidebar .nav-link.active i {
+    opacity: 1;
+}
+
+/* Card Styles */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md); /* Slightly larger radius */
+    box-shadow: var(--shadow);
+    background: var(--white-bg);
+    margin-bottom: 1.5rem; /* Add consistent bottom margin */
+}
+
+.card-header {
+    background-color: var(--white-bg); /* Keep white or use light-bg */
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem; /* Increase padding */
+    border-top-left-radius: var(--border-radius-md); /* Match card radius */
+    border-top-right-radius: var(--border-radius-md);
+}
+
+.card-header h4, .card-header h5 {
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 1.5rem; /* Increase padding */
+}
+
+/* Dashboard Stats Specific Styles */
+.dashboard-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align text left */
+}
+
+.dashboard-stat i {
+    font-size: 1.75rem; /* Adjust icon size */
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle background for icon */
+    line-height: 1; /* Ensure icon is centered in background */
+    color: var(--primary-color); /* Default icon color */
+    opacity: 1;
+}
+/* Specific icon colors */
+.dashboard-stat .text-primary i { background-color: rgba(59, 130, 246, 0.1); color: var(--primary-color); }
+.dashboard-stat .text-success i { background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+.dashboard-stat .text-info i { background-color: rgba(14, 165, 233, 0.1); color: var(--info-color); }
+.dashboard-stat .text-warning i { background-color: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+
+
+.dashboard-stat h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--text-color); /* Use standard text color */
+}
+
+.dashboard-stat p {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-stat small {
+    font-size: 0.8rem;
+}
+
+/* Remove gradient from stats cards, use standard card style */
+/*
+.stats-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+}
+
+.stats-card .stats-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+*/
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate; /* Allows border-radius on cells if needed */
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: var(--light-bg);
+    border-bottom: 2px solid var(--border-color);
+    border-top: 1px solid var(--border-color); /* Add top border */
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem; /* Slightly smaller */
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem; /* Adjust padding */
+    text-align: left;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem; /* Adjust padding */
+    border-bottom: 1px solid var(--border-color); /* Lighter border between rows */
+    transition: background-color 0.15s ease-in-out;
+    font-size: 0.875rem;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none; /* Remove border from last row */
+}
+
+.table tbody tr:hover {
+    background-color: #F3F4F6; /* Gray-100 */
+}
+
+.table-responsive {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden; /* Ensures border radius applies correctly */
+}
+
+/* Button Styles */
+/* Button Styles */
+.btn {
+    padding: 0.6rem 1.2rem; /* Increase padding */
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid transparent;
+}
+
+.btn:hover {
+    transform: translateY(-1px); /* Subtle lift effect */
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white-bg);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: var(--white-bg);
+}
+
+.btn-secondary {
+    background-color: var(--white-bg);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--light-bg);
+    border-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.btn-success { background-color: var(--success-color); border-color: var(--success-color); color: var(--white-bg); }
+.btn-success:hover { background-color: #059669; border-color: #059669; color: var(--white-bg); } /* Darker Emerald */
+
+.btn-danger { background-color: var(--danger-color); border-color: var(--danger-color); color: var(--white-bg); }
+.btn-danger:hover { background-color: #DC2626; border-color: #DC2626; color: var(--white-bg); } /* Darker Red */
+
+.btn-warning { background-color: var(--warning-color); border-color: var(--warning-color); color: #422006; } /* Dark text for yellow */
+.btn-warning:hover { background-color: #D97706; border-color: #D97706; color: #422006; } /* Darker Amber */
+
+.btn-info { background-color: var(--info-color); border-color: var(--info-color); color: var(--white-bg); }
+.btn-info:hover { background-color: #0284C7; border-color: #0284C7; color: var(--white-bg); } /* Darker Sky */
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: var(--white-bg);
+}
+/* Add other outline variants if needed */
+
+/* Badge Styles */
+/* Badge Styles */
+.badge {
+    padding: 0.4em 0.75em; /* Slightly larger padding */
+    font-weight: 600;
+    border-radius: var(--border-radius-lg); /* Pill shape */
+    font-size: 0.75rem; /* Smaller font */
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Specific badge background/text colors */
+.bg-primary { background-color: #DBEAFE !important; color: #1D4ED8 !important; } /* Blue-100, Blue-700 */
+.bg-success { background-color: #D1FAE5 !important; color: #047857 !important; } /* Emerald-100, Emerald-700 */
+.bg-danger { background-color: #FEE2E2 !important; color: #B91C1C !important; } /* Red-100, Red-700 */
+.bg-warning { background-color: #FEF3C7 !important; color: #92400E !important; } /* Amber-100, Amber-700 */
+.bg-info { background-color: #E0F2FE !important; color: #0369A1 !important; } /* Sky-100, Sky-700 */
+.bg-secondary { background-color: #E5E7EB !important; color: #4B5563 !important; } /* Gray-200, Gray-600 */
+
+/* Alert Styles */
+/* Alert Styles */
+.alert {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.25rem;
+    box-shadow: none; /* Remove default shadow if any */
+    font-size: 0.875rem;
+}
+.alert-primary { border-color: #93C5FD; background-color: #EFF6FF; color: #1E40AF; } /* Blue-300, Blue-50, Blue-800 */
+.alert-success { border-color: #6EE7B7; background-color: #ECFDF5; color: #065F46; } /* Emerald-300, Emerald-50, Emerald-800 */
+.alert-danger { border-color: #FCA5A5; background-color: #FEF2F2; color: #991B1B; } /* Red-300, Red-50, Red-800 */
+.alert-warning { border-color: #FCD34D; background-color: #FFFBEB; color: #92400E; } /* Amber-300, Amber-50, Amber-700 */
+.alert-info { border-color: #7DD3FC; background-color: #F0F9FF; color: #075985; } /* Sky-300, Sky-50, Sky-800 */
+
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border-color: var(--input-border);
+    padding: 0.6rem 0.9rem; /* Adjust padding */
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Lighter blue shadow */
+    outline: none;
+}
+
+.form-check-input {
+    border-radius: var(--border-radius-sm);
+    border-color: var(--input-border);
+}
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.form-check-input:focus {
+     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+     border-color: var(--primary-color);
+}
+
+/* Breadcrumb Styles */
+/* Breadcrumb Styles */
+.breadcrumb {
+    background-color: transparent; /* Remove default background */
+    padding: 0.5rem 0; /* Adjust padding */
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.breadcrumb-item {
+    color: var(--secondary-color);
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.breadcrumb-item a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-color); /* Darker color for active item */
+    font-weight: 500;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--secondary-color); /* Match secondary text color */
+    content: "/"; /* Use slash as separator */
+    padding: 0 0.6rem;
+}
+
+/* Responsive Adjustments */
+/* Utility Classes */
+.text-primary { color: var(--primary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-info { color: var(--info-color) !important; }
+.text-muted { color: var(--secondary-color) !important; }
+
+
+/* Responsive Adjustments */
+@media (max-width: 992px) { /* Adjust breakpoint if needed */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1030; /* Ensure it's above content when open */
+        /* Add styles for an open state, toggled by JS */
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    main.col-md-9 {
+        margin-left: 0; /* Full width when sidebar is closed */
+        padding-left: 1rem; /* Adjust padding for smaller screens */
+        padding-right: 1rem;
+    }
+    /* Add a button to toggle sidebar */
+    /* Add an overlay for content when sidebar is open */
+}
+
+@media (max-width: 768px) {
+    /* Further adjustments for smaller screens if needed */
+    .dashboard-stat h3 {
+        font-size: 1.5rem;
+    }
+    .btn {
+        padding: 0.5rem 1rem;
+    }
+}

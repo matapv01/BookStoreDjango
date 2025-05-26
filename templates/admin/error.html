@@ -1,0 +1,121 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ error_code }} - {{ error_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-page {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .error-code {
+        font-size: 8rem;
+        font-weight: 700;
+        color: #dc3545;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        animation: pulse 2s infinite;
+    }
+    .error-image {
+        max-width: 300px;
+        margin: 2rem 0;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    .error-description {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .error-actions {
+        margin-top: 2rem;
+    }
+    .error-actions .btn {
+        min-width: 150px;
+        margin: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="error-page text-center">
+        <div>
+            <div class="error-code">{{ error_code }}</div>
+            
+            <h1 class="h3 mb-4">{{ error_title }}</h1>
+            
+            {% if error_code == '404' %}
+                <img src="{% static 'images/404.svg' %}" alt="404 Error" class="error-image"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=404+Not+Found'">
+                <p class="error-description mb-4">
+                    The page you're looking for doesn't exist or has been moved.
+                    Please check the URL or navigate using the options below.
+                </p>
+            {% elif error_code == '500' %}
+                <img src="{% static 'images/500.svg' %}" alt="500 Error" class="error-image"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=500+Server+Error'">
+                <p class="error-description mb-4">
+                    Something went wrong on our end. Our team has been notified and is working to fix it.
+                    Please try again later or contact support if the problem persists.
+                </p>
+            {% elif error_code == '403' %}
+                <img src="{% static 'images/403.svg' %}" alt="403 Error" class="error-image"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=403+Forbidden'">
+                <p class="error-description mb-4">
+                    You don't have permission to access this page.
+                    Please contact your administrator if you believe this is a mistake.
+                </p>
+            {% else %}
+                <img src="{% static 'images/error.svg' %}" alt="Error" class="error-image"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Error'">
+                <p class="error-description mb-4">
+                    An unexpected error occurred. Please try again or contact support if the problem persists.
+                </p>
+            {% endif %}
+
+            <div class="error-actions">
+                <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Go to Dashboard
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                </button>
+                {% if error_code == '500' %}
+                    <a href="mailto:support@example.com" class="btn btn-outline-danger">
+                        <i class="fas fa-envelope me-2"></i>Contact Support
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if debug and error_details %}
+                <div class="card mt-5">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">Error Details (Debug Mode)</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="mb-0"><code>{{ error_details }}</code></pre>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Report error to analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'error', {
+            'event_category': 'Error',
+            'event_label': '{{ error_code }}',
+            'value': 1
+        });
+    }
+</script>
+{% endblock %}

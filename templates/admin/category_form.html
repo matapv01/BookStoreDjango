@@ -1,0 +1,238 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        line-height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .image-preview {
+        max-width: 300px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .current-image {
+        max-width: 300px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .image-preview-container {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f9f9f9;
+    }
+    .current-image {
+        max-width: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .preview-image {
+        max-width: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: none;
+    }
+    .form-row {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">{{ title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_panel:categories' %}">Danh mục</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="categoryForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Tên danh mục*</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                                {% endif %}
+                                <div class="help-text">Chọn tên rõ ràng, ngắn gọn cho danh mục.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.parent.id_for_label }}" class="form-label">Danh mục cha</label>
+                                {{ form.parent }}
+                                {% if form.parent.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.parent.errors }}</div>
+                                {% endif %}
+                                <div class="help-text">Danh mục cha tùy chọn cho cấu trúc phân cấp.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Mô tả</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="help-text">Cung cấp mô tả ngắn gọn về danh mục.</div>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="{{ form.image_file.id_for_label }}">Hình ảnh danh mục:</label>
+                            {{ form.image_file }}
+                            {% if form.image_file.help_text %}
+                                <div class="help-text">{{ form.image_file.help_text }}</div>
+                            {% endif %}
+
+                            <div class="image-preview-container">
+                                {% if form.instance.image %}
+                                <div class="current-image-wrapper">
+                                    <p><strong>Ảnh hiện tại:</strong></p>
+                                    <img src="{{ form.instance.image }}" alt="Ảnh hiện tại" class="current-image" id="current-image">
+                                </div>
+                                {% endif %}
+                                <div id="preview-container" style="display: none;">
+                                    <p><strong>Ảnh mới:</strong></p>
+                                    <img id="preview" class="preview-image">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Lưu danh mục
+                            </button>
+                            <a href="{% url 'admin_panel:categories' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Hướng dẫn & Quy tắc</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Mẹo quản lý danh mục:</h6>
+                    <ul class="mb-0">
+                        <li>Sử dụng tên rõ ràng và mô tả</li>
+                        <li>Giữ cấu trúc phân cấp đơn giản và logic</li>
+                        <li>Thêm mô tả phù hợp</li>
+                        <li>Kiểm tra danh mục trùng lặp</li>
+                        <li>Upload ảnh có kích thước phù hợp (khuyến nghị: 800x800px)</li>
+                    </ul>
+                    
+                    {% if form.instance.pk %}
+                        <hr>
+                        <h6>Thống kê danh mục:</h6>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-8">Số sản phẩm:</dt>
+                            <dd class="col-sm-4">{{ form.instance.product_set.count }}</dd>
+                            
+                            <dt class="col-sm-8">Số danh mục con:</dt>
+                            <dd class="col-sm-4">{{ form.instance.children.count }}</dd>
+                            
+                            <dt class="col-sm-8">Ngày tạo:</dt>
+                            <dd class="col-sm-4">{{ form.instance.created_at|date:"d/m/Y" }}</dd>
+                        </dl>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize Select2
+    $('#{{ form.parent.auto_id }}').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: 'Chọn danh mục cha',
+        allowClear: true
+    });
+
+    // Form validation
+    $('#categoryForm').submit(function(e) {
+        const name = $('#{{ form.name.auto_id }}').val().trim();
+        if (!name) {
+            alert('Vui lòng nhập tên danh mục');
+            e.preventDefault();
+        }
+    });
+
+    // Image preview
+    const imageInput = document.querySelector('input[name="image_file"]');
+    const preview = document.getElementById('preview');
+    const previewContainer = document.getElementById('preview-container');
+    const currentImage = document.getElementById('current-image');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    if (currentImage) {
+                        currentImage.style.opacity = '0.5';
+                    }
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                previewContainer.style.display = 'none';
+                if (currentImage) {
+                    currentImage.style.opacity = '1';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Chi tiết đơn hàng #{{ order.id }} - {{ settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table {
+        margin-bottom: 0;
+        width: 100%;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+    
+    .badge {
+        padding: 0.5em 0.75em;
+        font-weight: 500;
+    }
+    
+    .product-info {
+        min-width: 300px;
+    }
+    
+    .product-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .product-sku {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    .table-responsive {
+        margin: 0;
+        padding: 0;
+        overflow-x: auto;
+    }
+
+    .card-body .table-responsive {
+        margin: -1rem;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'main:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'main:order_history' %}">Đơn hàng của tôi</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Đơn hàng #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Chi tiết đơn hàng #{{ order.order_number }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Thông tin đơn hàng</h5>
+                    <p><strong>Trạng thái:</strong> 
+                        <span class="badge {% if order.status == 'PENDING' %}bg-warning
+                                         {% elif order.status == 'PROCESSING' %}bg-info
+                                         {% elif order.status == 'SHIPPED' %}bg-primary
+                                         {% elif order.status == 'DELIVERED' %}bg-success
+                                         {% else %}bg-danger{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Ngày đặt hàng:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Cập nhật lần cuối:</strong> {{ order.updated_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Thông tin giao hàng</h5>
+                    <p><strong>Địa chỉ:</strong> {{ order.shipping_address }}</p>
+                    <p><strong>Số điện thoại:</strong> {{ order.phone_number }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Thông tin thanh toán</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Phương thức:</strong> {{ order.get_payment_method_display }}</p>
+                            <p>
+                                <strong>Trạng thái:</strong> 
+                                <span class="badge {% if order.payment_status == 'Đã thanh toán' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ order.payment_status }}
+                                </span>
+                            </p>
+                            {% if order.transaction_id %}
+                            <p class="mb-0"><strong>Mã giao dịch:</strong> <span class="font-monospace">{{ order.transaction_id }}</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Thông tin khách hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Tên:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
+                            <p><strong>Email:</strong> {{ order.email }}</p>
+                            <p class="mb-0"><strong>Số điện thoại:</strong> {{ order.phone_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sản phẩm đã đặt</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.orderitem_set.all %}
+                                <tr>
+                                    <td>
+                                        <div class="product-info">
+                                            <div>
+                                                <div class="product-name">{{ item.product.name }}</div>
+                                                <div class="product-sku">SKU: {{ item.product.id }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ item.price|floatformat:0 }}đ</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">{{ item.total|floatformat:0 }}đ</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                    <td class="text-end"><strong>{{ order.total_amount|floatformat:0 }}đ</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'main:order_history' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+                {% if order.status == 'PENDING' %}
+                <form method="post" action="{% url 'main:cancel_order' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                        <i class="fas fa-times me-2"></i>Hủy đơn hàng
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

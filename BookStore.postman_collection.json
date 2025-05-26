@@ -1,0 +1,560 @@
+{
+	"info": {
+		"_postman_id": "cab4e279-69d3-47d2-b057-221a10d3b3ec",
+		"name": "BookStore API",
+		"description": "API documentation for BookStore application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44221505",
+		"_collection_link": "https://minh-5492917.postman.co/workspace/Minh's-Workspace~21f817dd-98b3-4c47-8a4e-0d6ed9ff7d14/collection/44221505-cab4e279-69d3-47d2-b057-221a10d3b3ec?action=share&source=collection_link&creator=44221505"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success) {",
+									"    pm.environment.set('session_id', pm.cookies.get('sessionid'));",
+									"    pm.test('Login successful', function() {",
+									"        pm.expect(pm.response.code).to.equal(200);",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Login failed', function() {",
+									"        pm.expect(pm.response.code).to.equal(400);",
+									"        pm.expect(jsonData.success).to.be.false;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login",
+								""
+							]
+						},
+						"description": "Login to get authentication token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success) {",
+									"    pm.environment.set('session_id', '');",
+									"    pm.test('Logout successful', function() {",
+									"        pm.expect(pm.response.code).to.equal(200);",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Logout failed', function() {",
+									"        pm.expect(pm.response.code).to.equal(401);",
+									"        pm.expect(jsonData.success).to.be.false;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "sessionid={{session_id}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout",
+								""
+							]
+						},
+						"description": "Logout and invalidate current session"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success) {",
+									"    pm.test('Password change successful', function() {",
+									"        pm.expect(pm.response.code).to.equal(200);",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Password change failed', function() {",
+									"        pm.expect(pm.response.code).to.equal(400);",
+									"        pm.expect(jsonData.success).to.be.false;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "sessionid={{session_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"{{old_password}}\",\n    \"new_password1\": \"{{new_password}}\",\n    \"new_password2\": \"{{new_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/change-password/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"change-password",
+								""
+							]
+						},
+						"description": "Change user password"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/categories/?search=&sort=name&page=1&page_size=9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "name"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "9"
+								}
+							]
+						},
+						"description": "Get list of categories with pagination and sorting"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/?category=&search=&sort=-created_at&page=1&page_size=6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								""
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": ""
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "-created_at"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "6"
+								}
+							]
+						},
+						"description": "Get list of products with filtering, sorting and pagination"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "sessionid={{session_id}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cart/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								""
+							]
+						},
+						"description": "Get current user's cart items"
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "sessionid={{session_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_id\": \"{{product_id}}\",\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cart/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								""
+							]
+						},
+						"description": "Add a product to cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "sessionid={{session_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cart_item_id\": \"{{cart_item_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cart/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/orders/?page=1&page_size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get list of user's orders with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shipping_address\": \"123 Test Street, Test City\",\n    \"payment_method\": \"COD\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/orders/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								""
+							]
+						},
+						"description": "Create a new order from cart items"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"profile",
+								""
+							]
+						},
+						"description": "Get current user's profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"updated@example.com\",\n    \"first_name\": \"Updated\",\n    \"last_name\": \"User\",\n    \"phone_number\": \"1234567890\",\n    \"address\": \"456 New Street, New City\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"profile",
+								""
+							]
+						},
+						"description": "Update user's profile information"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "your_username",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "your_password",
+			"type": "string"
+		},
+		{
+			"key": "session_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "old_password",
+			"value": "your_old_password",
+			"type": "string"
+		},
+		{
+			"key": "new_password",
+			"value": "your_new_password",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "cart_item_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

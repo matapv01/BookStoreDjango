@@ -1,0 +1,52 @@
+{% load humanize %}
+
+<li>
+    <div class="category-item d-flex align-items-center" data-id="{{ category.id }}">
+        <div class="drag-handle me-2">
+            <i class="fas fa-grip-vertical"></i>
+        </div>
+        
+        {% if category.children.exists %}
+            <button type="button" class="btn btn-link text-dark p-0 me-2 category-toggle">
+                <i class="fas fa-caret-down"></i>
+            </button>
+        {% else %}
+            <div class="me-4"></div>
+        {% endif %}
+        
+        <div class="flex-grow-1">
+            <h6 class="mb-0">{{ category.name }}</h6>
+            <div class="category-stats">
+                {{ category.product_set.count }} product{{ category.product_set.count|pluralize }},
+                {{ category.children.count }} subcategor{{ category.children.count|pluralize:"y,ies" }}
+            </div>
+        </div>
+        
+        <div class="category-actions">
+            <a href="{% url 'admin_panel:edit_category' category.id %}" 
+               class="btn btn-sm btn-outline-primary me-1" 
+               data-bs-toggle="tooltip" 
+               title="Edit Category">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'admin_panel:delete_category' category.id %}" 
+               class="btn btn-sm btn-outline-danger delete-category"
+               data-id="{{ category.id }}"
+               data-name="{{ category.name }}"
+               data-has-children="{{ category.children.exists|lower }}"
+               data-has-products="{{ category.product_set.exists|lower }}"
+               data-bs-toggle="tooltip" 
+               title="Delete Category">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    
+    {% if category.children.exists %}
+        <ul>
+            {% for child in category.children.all %}
+                {% include 'admin/category_tree_item.html' with category=child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>
