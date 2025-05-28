@@ -75,6 +75,8 @@ bookstore/
 └── requirements.txt
 ```
 
+## Link figma: https://www.figma.com/design/K3aFjIxz2IHwYwhLM11m4b/DjangoBookstore?node-id=0-1&t=fJfiEp0z9Y3GkVWV-1
+
 ## Sử dụng
 
 1. Truy cập trang chủ: http://localhost:8000
