@@ -24,7 +24,7 @@ Hệ thống quản lý nhà sách được xây dựng bằng Django, cho phép
 
 1. Clone repository:
 ```bash
-git clone https://github.com/your-username/bookstore.git
+git clone https://github.com/matapv01/BookStoreDjango.git
 cd bookstore
 ```
 
